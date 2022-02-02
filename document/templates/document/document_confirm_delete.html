@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h3>Usuń dokument</h3>
+    <div class="brick">
+        <form method="post">
+            {% csrf_token %}
+
+            <p>Czy na pewno chcesz usunąć dokument <strong>#{{ object.id }}</strong>?</p>
+
+            <div class="vertical-center">
+                <button type="submit" class="button red-button">Usuń dokument</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

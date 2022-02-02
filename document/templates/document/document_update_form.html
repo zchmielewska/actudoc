@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h3>Aktualizuj dokument</h3>
+    <div class="brick">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="vertical-center">
+                <button type="submit" class="button green-button">Aktualizuj dokument</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

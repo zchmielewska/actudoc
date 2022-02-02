@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h3>Dodaj produkt</h3>
+    <div class="brick">
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="vertical-center">
+                <button type="submit" class="button green-button">Utwórz produkt</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

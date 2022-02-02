@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h3>Usuń produkt</h3>
+    <div class="brick">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if object.number_of_documents > 0 %}
+                <p style="color: rgba(220, 53, 69, 1); font-weight: bold;">UWAGA! Niebezpieczeństwo!</p>
+                <p>Usunięcie tego produktu wiąże się z usunięciem <strong>{{ object.number_of_documents }}</strong>
+                    powiązanych z nim dokumentów!</p>
+            {% endif %}
+
+            <p>Czy na pewno chcesz usunąć produkt <strong>{{ object }}</strong>?</p>
+
+            <div class="vertical-center">
+                <button type="submit" class="button red-button">Usuń produkt</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

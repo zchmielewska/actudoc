@@ -1,0 +1,22 @@
+{%  extends "base.html" %}
+
+{% block content %}
+    <div style="margin: 0 auto; width: 50%;">
+        <h3>Zarejestruj się</h3>
+        <div class="brick">
+            {% if form.login.errors %}
+                {% for err in form.login.errors %}
+                    {{ err|escape }}
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="vertical-center"><button type="submit">Utwórz konto</button></div>
+                <br>
+                Masz już konto? <a href="{% url "login" %}"><u>Zaloguj się.</u></a>
+            </form>
+        </div>
+    </div>
+{% endblock %}

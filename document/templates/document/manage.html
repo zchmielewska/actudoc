@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h3>Zarządzaj produktami</h3>
+    <div class="brick" style="overflow: auto;">
+        <table class="striped-table">
+            <colgroup>
+                <col style="width: auto;">
+                <col style="width: auto;">
+                <col style="width: 100%;">
+                <col style="width: auto;">
+                <col style="width: auto;">
+            </colgroup>
+            <tr>
+                <th>LP</th>
+                <th>Model</th>
+                <th>Nazwa produktu</th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% for product in products %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ product.model }}</td>
+                <td>{{ product.name }}</td>
+                <td><a href="{% url "edit_product" product.id %}" class="link">edytuj</a></td>
+                <td><a href="{% url "delete_product" product.id %}" class="link">usuń</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="vertical-center">
+            <a href="{% url "add_product" %}" class="button green-button">Dodaj nowy produkt</a>
+        </div>
+    </div>
+
+
+    <h3>Zarządzaj kategoriami dokumentów</h3>
+
+    <div class="brick">
+        <table class="striped-table">
+            <colgroup>
+                <col style="width: auto;">
+                <col style="width: 100%;">
+                <col style="width: auto;">
+                <col style="width: auto;">
+            </colgroup>
+            <tr>
+                <th>LP</th>
+                <th>Nazwa kategorii</th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% for category in categories %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ category.name }}</td>
+                <td><a href="{% url "edit_category" category.id %}" class="link">edytuj</a></td>
+                <td><a href="{% url "delete_category" category.id %}" class="link">usuń</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="vertical-center">
+            <a href="{% url "add_category" %}" class="button green-button">Dodaj nową kategorię dokumentów</a>
+        </div>
+    </div>
+
+{% endblock %}
