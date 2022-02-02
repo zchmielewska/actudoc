@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import django_heroku
 import os
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,6 +130,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = "/login/"
 
-MEDIA_ROOT = Path("/home/zuzanna/moje-pliki-actudoc")
+MEDIA_ROOT = PurePosixPath("/home/zuzanna/moje-pliki-actudoc")
 
 django_heroku.settings(locals())
