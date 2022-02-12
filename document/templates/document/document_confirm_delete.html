@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h3>Usuń dokument</h3>
+    <h3>Delete document</h3>
     <div class="brick">
         <form method="post">
             {% csrf_token %}
 
-            <p>Czy na pewno chcesz usunąć dokument <strong>#{{ object.id }}</strong>?</p>
+            <p>Do you really want to delete the document <strong>#{{ object.id }}</strong>?</p>
 
             <div class="vertical-center">
-                <button type="submit" class="button red-button">Usuń dokument</button>
+                <button type="submit" class="button red-button">Delete document</button>
             </div>
         </form>
     </div>

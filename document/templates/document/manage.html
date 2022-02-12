@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h3>Zarządzaj produktami</h3>
+    <h3>Manage insurance products</h3>
     <div class="brick" style="overflow: auto;">
         <table class="striped-table">
             <colgroup>
@@ -12,9 +12,9 @@
                 <col style="width: auto;">
             </colgroup>
             <tr>
-                <th>LP</th>
-                <th>Model</th>
-                <th>Nazwa produktu</th>
+                <th>No</th>
+                <th>Cash flow model</th>
+                <th>Name of insurance product</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -23,19 +23,19 @@
                 <td>{{ forloop.counter }}</td>
                 <td>{{ product.model }}</td>
                 <td>{{ product.name }}</td>
-                <td><a href="{% url "edit_product" product.id %}" class="link">edytuj</a></td>
-                <td><a href="{% url "delete_product" product.id %}" class="link">usuń</a></td>
+                <td><a href="{% url "edit_product" product.id %}" class="link">edit</a></td>
+                <td><a href="{% url "delete_product" product.id %}" class="link">delete</a></td>
             </tr>
             {% endfor %}
         </table>
 
         <div class="vertical-center">
-            <a href="{% url "add_product" %}" class="button green-button">Dodaj nowy produkt</a>
+            <a href="{% url "add_product" %}" class="button green-button">Add insurance product</a>
         </div>
     </div>
 
 
-    <h3>Zarządzaj kategoriami dokumentów</h3>
+    <h3>Manage document categories</h3>
 
     <div class="brick">
         <table class="striped-table">
@@ -46,8 +46,8 @@
                 <col style="width: auto;">
             </colgroup>
             <tr>
-                <th>LP</th>
-                <th>Nazwa kategorii</th>
+                <th>No</th>
+                <th>Name of document category</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -55,14 +55,14 @@
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ category.name }}</td>
-                <td><a href="{% url "edit_category" category.id %}" class="link">edytuj</a></td>
-                <td><a href="{% url "delete_category" category.id %}" class="link">usuń</a></td>
+                <td><a href="{% url "edit_category" category.id %}" class="link">edit</a></td>
+                <td><a href="{% url "delete_category" category.id %}" class="link">delete</a></td>
             </tr>
             {% endfor %}
         </table>
 
         <div class="vertical-center">
-            <a href="{% url "add_category" %}" class="button green-button">Dodaj nową kategorię dokumentów</a>
+            <a href="{% url "add_category" %}" class="button green-button">Add document category</a>
         </div>
     </div>
 

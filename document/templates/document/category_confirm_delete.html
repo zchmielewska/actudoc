@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h3>Usuń kategorię dokumentów</h3>
+    <h3>Delete document category</h3>
     <div class="brick">
         <form method="post">
             {% csrf_token %}
 
             {% if object.number_of_documents > 0 %}
-                <p style="color: rgba(220, 53, 69, 1); font-weight: bold;">UWAGA! Niebezpieczeństwo!</p>
-                <p>Usunięcie tej kategorii wiąże się z usunięciem <strong>{{ object.number_of_documents }}</strong>
-                    powiązanych z nim dokumentów!</p>
+                <p style="color: rgba(220, 53, 69, 1); font-weight: bold;">DANGER!</p>
+                <p>If you delete this document category, you will also delete
+                    <strong>{{ object.number_of_documents }}</strong> documents in this category!</p>
             {% endif %}
 
-            <p>Czy na pewno chcesz usunąć usunąć kategorię <strong>{{ object }}</strong>?</p>
+            <p>Do you really want to delete the document category <strong>{{ object }}</strong>?</p>
 
             <div class="vertical-center">
-                <button type="submit" class="button red-button">Usuń kategorię</button>
+                <button type="submit" class="button red-button">Delete document category</button>
             </div>
         </form>
     </div>

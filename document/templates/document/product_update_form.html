@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h3>Aktualizuj produkt</h3>
+    <h3>Update insurance product</h3>
     <div class="brick">
         <form method="post">
             {% csrf_token %}
@@ -9,7 +9,7 @@
             {{ form.as_p }}
 
             <div class="vertical-center">
-                <button type="submit" class="button green-button">Aktualizuj produkt</button>
+                <button type="submit" class="button green-button">Update insurance product</button>
             </div>
         </form>
     </div>

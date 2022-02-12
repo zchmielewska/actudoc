@@ -7,17 +7,17 @@
 
 {% block content %}
     <div class="search">
-        <h2>Znajdź dokument</h2>
+        <h2>Search documents</h2>
         <form action="/search" method="get">
             <input type="text" name="phrase" id="search_field">
-            <button type="submit">Szukaj</button>
+            <button type="submit">Search</button>
         </form>
     </div>
 
     {% if phrase %}
-        <h3>Znalezione dokumenty ({{ no_documents }}) dla frazy <i>{{ phrase }}</i></h3>
+        <h3>Found ({{ no_documents }}) document(s) for phrase <i>{{ phrase }}</i></h3>
     {% else %}
-        <h3>Ostatnie dokumenty</h3>
+        <h3>Latest documents</h3>
     {% endif %}
 
     {% for document in documents %}
@@ -28,29 +28,29 @@
             <div style="padding: 6px 24px 12px 24px;">
                 <table>
                     <tr>
-                        <td style="color: #666;">Produkt:</td>
+                        <td style="color: #666;">Insurance product:</td>
                         <td>{{ document.product.name }} ({{ document.product.model }})</td>
                     </tr>
                     <tr>
-                        <td style="color: #666;">Kategoria dokumentu:</td>
+                        <td style="color: #666;">Document category:</td>
                         <td>{{ document.category.name }}</td>
                     </tr>
                     <tr>
-                        <td style="color: #666;">Ważny od:</td>
+                        <td style="color: #666;">Valid from:</td>
                         <td>{{ document.validity_start|date:'Y-m-d' }}</td>
                     </tr>
                 </table>
 
                 <div class="vertical-center">
-                    <a href="{% url "document_detail" document.id %}" class="link">zobacz więcej</a>
+                    <a href="{% url "document_detail" document.id %}" class="link">show more</a>
                 </div>
             </div>
         </div>
     {% empty %}
         {% if phrase %}
-            <p>Nie znaleziono żadnego dokumentu.</p>
+            <p>No documents found.</p>
         {% else %}
-            <p>Jeszcze nie ma żadnego dokumentu.</p>
+            <p>There is no document yet.</p>
         {% endif %}
     {% endfor %}
 {% endblock %}

@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=60, verbose_name="insurance product name")
+    name = models.CharField(max_length=60, verbose_name="name of insurance product")
     model = models.CharField(max_length=20, verbose_name="cash flow model")
 
     def __str__(self):
@@ -44,8 +44,8 @@ class Category(models.Model):
 
 
 class Document(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="insurance product")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="document category")
     validity_start = models.DateField(verbose_name="valid from")
     file = models.FileField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="create_user")

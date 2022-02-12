@@ -2,7 +2,7 @@
 
 {% block content %}
     <div style="margin: 0 auto; width: 50%;">
-        <h3>Zarejestruj się</h3>
+        <h3>Register</h3>
         <div class="brick">
             {% if form.login.errors %}
                 {% for err in form.login.errors %}
@@ -13,9 +13,9 @@
             <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <div class="vertical-center"><button type="submit">Utwórz konto</button></div>
+                <div class="vertical-center"><button type="submit">Create an account</button></div>
                 <br>
-                Masz już konto? <a href="{% url "login" %}"><u>Zaloguj się.</u></a>
+                Already have an account? <a href="{% url "login" %}"><u>Log in.</u></a>
             </form>
         </div>
     </div>

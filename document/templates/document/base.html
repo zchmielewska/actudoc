@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu" rel="stylesheet">
     <link rel="stylesheet" href="{% static "css/styles.css" %}">
     {% block head %}{% endblock %}
-    <title>Archowum | archiwum OWU</title>
+    <title>ACTUDOC | actuarial documents</title>
 </head>
 <body>
     <div class="wrapper">
@@ -18,8 +18,8 @@
             <div class="navcontent">
                 <div><a href="/">ACTU<strong>DOC</strong></a></div>
                 {% if user_is_manager %}
-                    <div class="push-navcontent"><a href="{% url "add_document" %}">Dodaj dokument</a></div>
-                    <div><a href="{% url "manage" %}">Zarządzaj</a></div>
+                    <div class="push-navcontent"><a href="{% url "add_document" %}">Add document</a></div>
+                    <div><a href="{% url "manage" %}">Manage</a></div>
                 {% endif %}
             </div>
         </div>
@@ -44,8 +44,8 @@
     <div class="footer">
         <div class="footer-content">
             {% if request.user.username %}
-                zalogowany użytkownik: <strong>{{ request.user.username }}</strong>
-                <a href="{% url "logout" %}" class="link" style="float: right;">wyloguj się</a>
+                user: <strong>{{ request.user.username }}</strong>
+                <a href="{% url "logout" %}" class="link" style="float: right;">log out</a>
             {% endif %}
         </div>
     </div>

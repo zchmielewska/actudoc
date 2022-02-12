@@ -58,7 +58,7 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixi
     model = models.Product
     fields = "__all__"
     success_url = reverse_lazy("manage")
-    success_message = "New product added!"
+    success_message = "Insurance product added!"
 
 
 class EditProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
@@ -70,14 +70,14 @@ class EditProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMix
     fields = "__all__"
     template_name_suffix = "_update_form"
     success_url = reverse_lazy("manage")
-    success_message = "Product updated!"
+    success_message = "Insurance product updated!"
 
 
 class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     """Delete a product."""
     model = models.Product
     success_url = reverse_lazy("manage")
-    success_message = "Product deleted!"
+    success_message = "Insurance product deleted!"
 
     def test_func(self):
         return self.request.user.groups.filter(name="manager").exists()
@@ -92,7 +92,7 @@ class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMix
     model = models.Category
     fields = "__all__"
     success_url = reverse_lazy("manage")
-    success_message = "New category added!"
+    success_message = "Document category added!"
 
     def test_func(self):
         return self.request.user.groups.filter(name="manager").exists()
@@ -104,7 +104,7 @@ class EditCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMi
     fields = "__all__"
     template_name_suffix = "_update_form"
     success_url = reverse_lazy("manage")
-    success_message = "Category updated!"
+    success_message = "Document category updated!"
 
     def test_func(self):
         return self.request.user.groups.filter(name="manager").exists()
@@ -114,7 +114,7 @@ class DeleteCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessage
     """Delete a category."""
     model = models.Category
     success_url = reverse_lazy("manage")
-    success_message = "Category deleted!"
+    success_message = "Document category deleted!"
 
     def test_func(self):
         return self.request.user.groups.filter(name="manager").exists()
@@ -154,7 +154,7 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
                 text = utils.get_filename_msg(document, sent_filename=form_file.name)
                 messages.info(request, text)
 
-            messages.success(request, "New document added!")
+            messages.success(request, "Document added!")
             return redirect("main")
 
         return render(request, "document_form.html", {"form": form})

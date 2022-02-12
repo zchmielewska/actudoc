@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h3>Dodaj kategorię dokumentów</h3>
+    <h3>Add document category</h3>
     <div class="brick">
         <form method="post">
             {% csrf_token %}
@@ -9,7 +9,7 @@
             {{ form.as_p }}
 
             <div class="vertical-center">
-                <button type="submit" class="button green-button">Utwórz kategorię</button>
+                <button type="submit" class="button green-button">Add document category</button>
             </div>
         </form>
     </div>
