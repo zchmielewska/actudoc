@@ -241,60 +241,60 @@ class DownloadDocumentView(LoginRequiredMixin, View):
             raise Http404
 
 
-class RegisterView(View):
-    """Form to create a new account."""
-    def get(self, request):
-        form = forms.RegisterForm()
-        return render(request, "register.html", {"form": form})
+# class RegisterView(View):
+#     """Form to create a new account."""
+#     def get(self, request):
+#         form = forms.RegisterForm()
+#         return render(request, "register.html", {"form": form})
+#
+#     def post(self, request):
+#         form = forms.RegisterForm(request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data["username"]
+#             password = form.cleaned_data["password"]
+#             password2 = form.cleaned_data["password2"]
+#
+#             username_is_taken = username in User.objects.values_list("username", flat=True)
+#             if username_is_taken:
+#                 form.add_error("username", "This username has already been taken.")
+#                 return render(request, "register.html", {"form": form})
+#
+#             passwords_are_different = password != password2
+#             if passwords_are_different:
+#                 form.add_error("username", "Passwords are different.")
+#                 return render(request, "register.html", {"form": form})
+#
+#             user = User.objects.create_user(username=username, email=None, password=password)
+#             login(request, user)
+#             return redirect("main")
+#         else:
+#             return render(request, "register.html", {"form": form})
+#
 
-    def post(self, request):
-        form = forms.RegisterForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-            password2 = form.cleaned_data["password2"]
-
-            username_is_taken = username in User.objects.values_list("username", flat=True)
-            if username_is_taken:
-                form.add_error("username", "This username has already been taken.")
-                return render(request, "register.html", {"form": form})
-
-            passwords_are_different = password != password2
-            if passwords_are_different:
-                form.add_error("username", "Passwords are different.")
-                return render(request, "register.html", {"form": form})
-
-            user = User.objects.create_user(username=username, email=None, password=password)
-            login(request, user)
-            return redirect("main")
-        else:
-            return render(request, "register.html", {"form": form})
-
-
-class LoginView(View):
-    """Form to log in."""
-    def get(self, request):
-        form = forms.LoginForm()
-        return render(request, "login.html", {"form": form})
-
-    def post(self, request):
-        form = forms.LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-            user = authenticate(username=username, password=password)
-
-            if user is not None:
-                login(request, user)
-                url_next = request.GET.get("next", "/")
-                return redirect(url_next)
-            else:
-                form.add_error("username", "Incorrect username or password.")
-        return render(request, "login.html", {"form": form})
-
-
-class LogoutView(View):
-    """Form to log out."""
-    def get(self, request):
-        logout(request)
-        return redirect("main")
+# class LoginView(View):
+#     """Form to log in."""
+#     def get(self, request):
+#         form = forms.LoginForm()
+#         return render(request, "login.html", {"form": form})
+#
+#     def post(self, request):
+#         form = forms.LoginForm(request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data["username"]
+#             password = form.cleaned_data["password"]
+#             user = authenticate(username=username, password=password)
+#
+#             if user is not None:
+#                 login(request, user)
+#                 url_next = request.GET.get("next", "/")
+#                 return redirect(url_next)
+#             else:
+#                 form.add_error("username", "Incorrect username or password.")
+#         return render(request, "login.html", {"form": form})
+#
+#
+# class LogoutView(View):
+#     """Form to log out."""
+#     def get(self, request):
+#         logout(request)
+#         return redirect("main")

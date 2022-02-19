@@ -56,7 +56,10 @@ ROOT_URLCONF = 'actudoc.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "document", "templates", "document")],
+        'DIRS': [
+            os.path.join(BASE_DIR, "account", "templates", "registration"),
+            os.path.join(BASE_DIR, "document", "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -130,4 +133,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = os.getenv("MEDIA_URL", default="/media/")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-LOGIN_URL = "/login"
+LOGIN_REDIRECT_URL = "main"
+LOGIN_URL = "login"
+LOGOUT_URL = "logout"

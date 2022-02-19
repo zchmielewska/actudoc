@@ -16,29 +16,13 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
-from document import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.MainView.as_view(), name="main"),
-    path('search', views.MainView.as_view(), name="search"),
-    path('document/add', views.AddDocumentView.as_view(), name="add_document"),
-    path('product/add', views.AddProductView.as_view(), name="add_product"),
-    path('category/add', views.AddCategoryView.as_view(), name="add_category"),
-    path('product/edit/<pk>', views.EditProductView.as_view(), name="edit_product"),
-    path('category/edit/<pk>', views.EditCategoryView.as_view(), name="edit_category"),
-    path('document/edit/<pk>', views.EditDocumentView.as_view(), name="edit_document"),
-    path('product/delete/<pk>', views.DeleteProductView.as_view(), name="delete_product"),
-    path('category/delete/<pk>', views.DeleteCategoryView.as_view(), name="delete_category"),
-    path('document/delete/<pk>', views.DeleteDocumentView.as_view(), name="delete_document"),
-    path('document/<pk>', views.DocumentDetailView.as_view(), name="document_detail"),
-    path('download/<pk>', views.DownloadDocumentView.as_view(), name="download"),
-    path('manage', views.ManageView.as_view(), name="manage"),
-    path('register', views.RegisterView.as_view(), name="register"),
-    path('login', views.LoginView.as_view(), name="login"),
-    path('logout', views.LogoutView.as_view(), name="logout"),
+    path('account/', include('account.urls')),
+    path('', include('document.urls')),
 ]
 
 if settings.DEBUG:
