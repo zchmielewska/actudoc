@@ -36,7 +36,7 @@ class MainView(LoginRequiredMixin, View):
             "phrase": phrase,
             "no_documents": documents.count(),
         }
-        return render(request, "main.html", ctx)
+        return render(request, "document/main.html", ctx)
 
 
 class ManageView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -47,7 +47,7 @@ class ManageView(LoginRequiredMixin, UserPassesTestMixin, View):
     def get(self, request):
         categories = models.Category.objects.all().order_by("id")
         products = models.Product.objects.all().order_by("id")
-        return render(request, "manage.html", {"categories": categories, "products": products})
+        return render(request, "document/manage.html", {"categories": categories, "products": products})
 
 
 class AddProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
@@ -133,7 +133,7 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request):
         form = forms.DocumentForm
-        return render(request, "document_form.html", {"form": form})
+        return render(request, "document/document_form.html", {"form": form})
 
     def post(self, request):
         form = forms.DocumentForm(request.POST, request.FILES)
@@ -157,7 +157,7 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
             messages.success(request, "Document added!")
             return redirect("main")
 
-        return render(request, "document_form.html", {"form": form})
+        return render(request, "document/document_form.html", {"form": form})
 
 
 class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -223,7 +223,7 @@ class DocumentDetailView(LoginRequiredMixin, View):
             "document": document,
             "history_set": history_set,
         }
-        return render(request, "document_detail.html", ctx)
+        return render(request, "document/document_detail.html", ctx)
 
 
 class DownloadDocumentView(LoginRequiredMixin, View):

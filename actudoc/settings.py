@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 
+from dotenv import load_dotenv
 from pathlib import Path
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k*c77d(+98s#4chszz134f%kn5-)z9vt)u56)ym3^)j(qol=6m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (os.getenv("DEBUG") == "True")
 
 ALLOWED_HOSTS = ['127.0.0.1', ]
 
@@ -32,6 +35,7 @@ ALLOWED_HOSTS = ['127.0.0.1', ]
 # Application definition
 
 INSTALLED_APPS = [
+    'account',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,8 +61,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, "account", "templates", "registration"),
-            os.path.join(BASE_DIR, "document", "templates"),
+            # os.path.join(BASE_DIR, "account", "templates", "registration"),
+            # os.path.join(BASE_DIR, "document", "templates"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -136,3 +140,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 LOGIN_REDIRECT_URL = "main"
 LOGIN_URL = "login"
 LOGOUT_URL = "logout"
+
+# E-mail backend
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT"))
+EMAIL_USE_TLS = (os.getenv("EMAIL_USE_TLS") == "True")

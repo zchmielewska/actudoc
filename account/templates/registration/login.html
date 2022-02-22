@@ -1,27 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}Log-in{% endblock %}
 
 {% block content %}
+    <div class="vertical-center"><h2>Log-in</h2></div>
 
-    <h1>Log in</h1>
-
-    <div class="brick">
-
+    <div class="brick brick-narrow">
         {% if form.errors %}
-            <p>Username or password are incorrent. Please try again.</p>
-        {% else %}
-            <p>Fill the form to log in.</p>
+            <p>Your username and password didn't match. Please try again.</p>
         {% endif %}
 
-        <div>
-            <form action="{% url "login" %}" method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <input type="hidden" name="next" value="{{ next }}" />
-                <p><input type="submit" value="Log in"></p>
-            </form>
-        </div>
+        <form action="{% url "login" %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="hidden" name="next" value="{{ next }}" />
+            <div class="vertical-center">
+                <input type="submit" value="Log in" class="button gray-button">
+            </div>
+        </form>
+        <p>Forgotten password? <a href="{% url "password_reset" %}" class="link">Reset your password.</a></p>
+        <p>No account yet? <a href="{% url "register" %}" class="link">Register here.</a></p>
     </div>
 
 {% endblock %}
