@@ -2,9 +2,7 @@ import mimetypes
 import os
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
