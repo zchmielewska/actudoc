@@ -91,16 +91,16 @@ def get_filename_msg(document, sent_filename):
     :return: string, message
     """
     saved_filename = document.file
-    text = f"Przesłany plik zapisano jako {saved_filename}."
+    text = f"The file has been saved as {saved_filename}."
 
     cleaned_sent_filename = sent_filename.replace(" ", "_")
     if models.Document.objects.filter(file=cleaned_sent_filename).exists():
         doc_same_filename = models.Document.objects.get(file=cleaned_sent_filename)
         if doc_same_filename != document:
-            text += f" Plik o nazwie {cleaned_sent_filename} jest już związany " \
-                    f"z dokumentem #{doc_same_filename.id}."
+            text += f" File with the name {cleaned_sent_filename} is already associated with " \
+                    f"the document #{doc_same_filename.id}."
 
     if " " in sent_filename:
-        text += " Spacje zmieniono na podkreślenia."
+        text += " Spaces have been changed to underscores."
 
     return text

@@ -14,15 +14,28 @@
 </head>
 <body>
     <div class="wrapper">
-        <div class="navbar">
-            <div class="navcontent">
+        <div class="nav-bar">
+            <div class="nav-content">
                 <div><a href="/">ACTU<strong>DOC</strong></a></div>
                 {% if user_is_manager %}
-                    <div class="push-navcontent"><a href="{% url "add_document" %}">Add document</a></div>
+                    <div class="push-right"><a href="{% url "add_document" %}">Add document</a></div>
                     <div><a href="{% url "manage" %}">Manage</a></div>
                 {% endif %}
             </div>
         </div>
+
+        {% if request.user.username %}
+            <div class="profile-bar">
+                <div class="profile-content">
+                    <div class="push-right">
+                        <a href="{% url "profile_detail" request.user.username %}" class="link">
+                            <strong>{{ request.user.username }}</strong>
+                        </a> |
+                        <a href="{% url "logout" %}" class="link">log out</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
         <div class="container">
             {% if messages %}
@@ -39,15 +52,6 @@
             {% block content %}{% endblock %}
         </div>
         <div class="push"></div>
-    </div>
-
-    <div class="footer">
-        <div class="footer-content">
-            {% if request.user.username %}
-                user: <strong>{{ request.user.username }}</strong>
-                <a href="{% url "logout" %}" class="link" style="float: right;">log out</a>
-            {% endif %}
-        </div>
     </div>
 </body>
 </html>

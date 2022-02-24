@@ -16,12 +16,12 @@ body {
   /*overflow-y : scroll;*/
 }
 
-.navbar {
+.nav-bar {
   background-color: #333;
   overflow: hidden;
 }
 
-.navcontent {
+.nav-content {
   display: flex;
   color: #f2f2f2;
   width: 70%;
@@ -29,18 +29,31 @@ body {
   font-size: 1.1em;
 }
 
-.push-navcontent {
+.push-right {
   margin-left: auto;
   margin-right: 16px;
 }
 
-.navcontent a {
+.nav-content a {
   display: inline-block;
   padding: 14px 16px;
 }
 
-.navcontent a:hover {
+.nav-content a:hover {
   color: #C58F00;
+}
+
+.profile-bar {
+  background-color: #d5d6da;
+  overflow: hidden;
+}
+
+.profile-content {
+  display: flex;
+  width: 70%;
+  margin: 0 auto;
+  padding: 8px;
+  font-size: 0.9em;
 }
 
 .container {
@@ -53,21 +66,6 @@ body {
 .wrapper { /* wrapper and push are used to make footer sticky */
   min-height: 100%;
   margin-bottom: -48px;
-}
-
-.footer, .push {
-  height: 48px;
-}
-
-.footer {
-  background-color: #d5d6da;
-}
-
-.footer-content {
-  width: 70%;
-  margin: 0 auto;
-  padding: 12px;
-  font-size: 0.9em;
 }
 
 /* Messages */

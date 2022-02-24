@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Edit profile{% endblock %}
+
+{% block content %}
+    <div class="vertical-center"><h2>Profile</h2></div>
+
+    <div class="brick">
+
+        Username: {{ user.username }} <br>
+        First name: {{ user.first_name }} <br>
+        Last name: {{ user.last_name }} <br>
+        E-mail: {{ user.email }} <br>
+        Joined: {{ user.date_joined }} <br>
+        Date of birth: {{ user.profile.date_of_birth }} <br>
+
+        <button class="button gray-button">Edit profile</button>
+
+    </div>
+{% endblock %}

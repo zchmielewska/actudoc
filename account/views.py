@@ -1,6 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.shortcuts import render, get_object_or_404
 from django.views import View
+from django.views.generic.detail import DetailView
 
 from account.forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from account.models import Profile
@@ -22,7 +24,7 @@ class RegisterView(View):
         return render(request, "account/register.html", {"user_form": user_form})
 
 
-class ProfileEditView(LoginRequiredMixin, View):
+class EditProfileView(LoginRequiredMixin, View):
     def get(self, request):
         user_form = UserEditForm(instance=request.user)
         profile_form = ProfileEditForm(instance=request.user.profile)
@@ -36,3 +38,8 @@ class ProfileEditView(LoginRequiredMixin, View):
             profile_form.save()
         return render(request, "account/edit.html", {"user_form": user_form, "profile_form": profile_form})
 
+
+class ProfileDetailView(LoginRequiredMixin, View):
+    def get(self, request, username):
+        user = get_object_or_404(User, username=username)
+        return render(request, "account/profile_detail.html", {"user": user})

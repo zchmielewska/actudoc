@@ -7,7 +7,7 @@ class Company(models.Model):
 
 
 class Product(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    # company = models.ForeignKey(Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=60, verbose_name="name of insurance product")
     model = models.CharField(max_length=20, verbose_name="cash flow model")
 
@@ -29,7 +29,7 @@ class Product(models.Model):
 
 
 class Category(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    # company = models.ForeignKey(Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -50,7 +50,7 @@ class Category(models.Model):
 
 
 class Document(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    # company = models.ForeignKey(Company, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="insurance product")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="document category")
     validity_start = models.DateField(verbose_name="valid from")
