@@ -17,10 +17,9 @@
         <div class="nav-bar">
             <div class="nav-content">
                 <div><a href="/">ACTU<strong>DOC</strong></a></div>
-                {% if user_is_manager %}
-                    <div class="push-right"><a href="{% url "add_document" %}">Add document</a></div>
-                    <div><a href="{% url "manage" %}">Manage</a></div>
-                {% endif %}
+                <div class="push-right"><a href="{% url "add_document" %}">Add document</a></div>
+                <div><a href="{% url "manage" %}">Manage</a></div>
+                <div><a href="{% url "account:user_list" %}">Users</a></div>
             </div>
         </div>
 
@@ -28,10 +27,10 @@
             <div class="profile-bar">
                 <div class="profile-content">
                     <div class="push-right">
-                        <a href="{% url "profile_detail" request.user.username %}" class="link">
+                        <a href="{% url "account:profile_detail" request.user.username %}" class="link">
                             <strong>{{ request.user.username }}</strong>
                         </a> |
-                        <a href="{% url "logout" %}" class="link">log out</a>
+                        <a href="{% url "account:logout" %}" class="link">log out</a>
                     </div>
                 </div>
             </div>

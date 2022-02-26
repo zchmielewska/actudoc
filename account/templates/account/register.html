@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
+{% load static %}
+{% block head %}
+    <script src="{% static 'js/register.js' %}" type="text/javascript"></script>
+{% endblock %}
+
 {% block title %}Create an account{% endblock %}
 
 {% block content %}
@@ -10,6 +15,36 @@
         <form method="post">
             {% csrf_token %}
             {{ user_form.as_p }}
+            <hr>
+            <span class="label">Registration type:</span>
+            <p>
+                <input type="radio" id="existing_company" name="company" value="existing_company">
+                <label for="existing_company" style="width: auto;">my company has an account</label><br>
+                <input type="radio" id="new_company" name="company" value="new_company">
+                <label for="new_company" style="width: auto;">register new company</label><br>
+            </p>
+
+            {# Existing company #}
+            <div id="existing_company_div" style="display: none;">
+                <label for="company_code">Company code:</label>
+                <input type="text" id="company_code" name="company_code">
+                <span class="helptext">You can receive the code from your company's administrator.</span>
+            </div>
+
+            {# New company #}
+            <div id="new_company_div" style="display: none;">
+                <p>
+                    <label for="company_full_name">Company full name:</label>
+                    <input type="text" id="company_full_name" name="company_full_name" maxlength="100">
+                    <span class="helptext">e.g. Alphabetical Insurance Company</span>
+                </p>
+                <p>
+                    <label for="company_short_name">Company short name (only letters):</label>
+                    <input type="text" id="company_short_name" name="company_short_name" style="text-transform:uppercase" onkeydown="return /[a-z]/i.test(event.key)" maxlength="32"><br>
+                    <span class="helptext">e.g. ALPHA</span>
+                </p>
+            </div>
+
             <div class="vertical-center">
                 <input type="submit" value="Create my account" class="button gray-button">
             </div>

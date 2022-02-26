@@ -31,7 +31,6 @@ body {
 
 .push-right {
   margin-left: auto;
-  margin-right: 16px;
 }
 
 .nav-content a {
@@ -157,7 +156,7 @@ input[type=text], input[type=password], input[type=email] {
   width: 100%;
 }
 
-label {
+label, .label {
   font-size: 0.9em;
   color: #666;
   width: 100%;
@@ -183,7 +182,7 @@ form > ul.errorlist {
   border-top: 1px solid #ddd;
 }
 
-.striped-table th, .striped-table td, .product-detail-table td {
+.striped-table th, .striped-table td {
   padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
@@ -193,7 +192,7 @@ form > ul.errorlist {
   background-color: #f2f2f2;
 }
 
-.product-detail-table tr:first-child {
+.striped-table-top-border tr:first-child {
   border-top: 1px solid #ddd;
 }
 

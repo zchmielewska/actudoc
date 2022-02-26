@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+    <div class="vertical-center"><h2>Users</h2></div>
+    <div class="brick">
+        <table class="striped-table striped-table-top-border">
+            <tr>
+                <th>Username</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Role</th>
+                <th>Active</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
+                <td>{{ user.profile.role }}</td>
+                <td>{{ user.is_active }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

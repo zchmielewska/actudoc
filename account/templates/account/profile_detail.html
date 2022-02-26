@@ -7,14 +7,43 @@
 
     <div class="brick">
 
-        Username: {{ user.username }} <br>
-        First name: {{ user.first_name }} <br>
-        Last name: {{ user.last_name }} <br>
-        E-mail: {{ user.email }} <br>
-        Joined: {{ user.date_joined }} <br>
-        Date of birth: {{ user.profile.date_of_birth }} <br>
+        <table class="striped-table striped-table-top-border">
+            <colgroup>
+                <col style="width: auto;">
+                <col style="width: 100%;">
+            </colgroup>
+            <tr>
+                <td>Username:</td>
+                <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <td>First name:</td>
+                <td>{{ user.first_name }}</td>
+            </tr>
+            <tr>
+                <td>Last name:</td>
+                <td>{{ user.last_name }}</td>
+            </tr>
+            <tr>
+                <td>E-mail:</td>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <td>Joined:</td>
+                <td>{{ user.date_joined }}</td>
+            </tr>
+            <tr>
+                <td>Date of birth:</td>
+                <td>{{ user.profile.date_of_birth }}</td>
+            </tr>
+            <tr>
+                <td>Role:</td>
+                <td>{{ user.profile.role }}</td>
+            </tr>
+        </table>
 
-        <button class="button gray-button">Edit profile</button>
-
+        <div class="vertical-center">
+            <a href="{% url "account:profile_edit" %}" class="button gray-button">Edit profile</a>
+        </div>
     </div>
 {% endblock %}

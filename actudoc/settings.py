@@ -138,8 +138,8 @@ MEDIA_URL = os.getenv("MEDIA_URL", default="/media/")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 LOGIN_REDIRECT_URL = "main"
-LOGIN_URL = "login"
-LOGOUT_URL = "logout"
+LOGIN_URL = "account/login"
+LOGOUT_URL = "account/logout"
 
 # E-mail backend
 EMAIL_HOST = os.getenv("EMAIL_HOST")

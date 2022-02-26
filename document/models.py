@@ -3,7 +3,9 @@ from django.db import models
 
 
 class Company(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=32, unique=True)
+    full_name = models.CharField(max_length=100)
+    code = models.CharField(max_length=32, unique=True)
 
 
 class Product(models.Model):

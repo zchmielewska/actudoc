@@ -1,11 +1,14 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+from django.utils.crypto import get_random_string
 from django.views import View
-from django.views.generic.detail import DetailView
 
 from account.forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from account.models import Profile
+from document.models import Company
 
 
 class RegisterView(View):
@@ -16,10 +19,38 @@ class RegisterView(View):
     def post(self, request):
         user_form = UserRegistrationForm(request.POST)
         if user_form.is_valid():
+            # User can either create an account for a new company...
+            if request.POST.get("company") == "new_company":
+                code = get_random_string(length=32)
+                company = Company.objects.create(
+                    name=request.POST.get("company_short_name"),
+                    full_name=request.POST.get("company_full_name"),
+                    code=code,
+                )
+
+            # ...or join as a member of an existing company
+            if request.POST.get("company") == "existing_company":
+                try:
+                    code = request.POST.get("company_code")
+                    print("code: ", code)
+                    company = Company.objects.get(code=code)
+                except Company.DoesNotExist:
+                    messages.error(request, "Incorrect company code!")
+                    return render(request, "account/register.html", {"user_form": user_form})
+
+            # Data for a person is contained in two models:
+            # 1/2 User
             new_user = user_form.save(commit=False)
+            new_user.username = str(User.objects.count() + 1)
             new_user.set_password(user_form.cleaned_data["password"])
             new_user.save()
-            Profile.objects.create(user=new_user)
+
+            # 2/2 Profile
+            profile = Profile.objects.create(
+                user=new_user,
+                company=company,
+            )
+
             return render(request, "account/register_done.html", {"new_user": new_user})
         return render(request, "account/register.html", {"user_form": user_form})
 
@@ -32,10 +63,11 @@ class EditProfileView(LoginRequiredMixin, View):
 
     def post(self, request):
         user_form = UserEditForm(instance=request.user, data=request.POST)
-        profile_form = ProfileEditForm(instance=request.user.profile, data=request.POST, files=request.FILES)
+        profile_form = ProfileEditForm(instance=request.user.profile, data=request.POST)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
+            return redirect(reverse("account:profile_detail", kwargs={"username": request.user.username}))
         return render(request, "account/edit.html", {"user_form": user_form, "profile_form": profile_form})
 
 
@@ -43,3 +75,9 @@ class ProfileDetailView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
         return render(request, "account/profile_detail.html", {"user": user})
+
+
+class UserListView(View):
+    def get(self, request):
+        users = User.objects.all()
+        return render(request, "account/list_users.html", {"users": users})
