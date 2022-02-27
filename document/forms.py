@@ -11,7 +11,13 @@ class DateInput(forms.DateInput):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = models.Product
-        fields = ("name", "model", )
+        fields = ("name", "model",)
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.Category
+        fields = ("name", )
 
 
 class DocumentForm(forms.ModelForm):

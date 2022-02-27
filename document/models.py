@@ -36,8 +36,9 @@ class Product(models.Model):
 
 
 class Category(models.Model):
-    # company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    company_category_id = models.PositiveIntegerField()
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, help_text="E.g. Terms and conditions or Technical description")
 
     def __str__(self):
         return self.name

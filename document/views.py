@@ -63,7 +63,6 @@ class AddProductView(LoginRequiredMixin, View):
             name = form.cleaned_data["name"]
             model = form.cleaned_data["model"]
             company = request.user.profile.company
-            print("company: ", company)
             company_product_id = models.Product.objects.filter(company=company).count() + 1
             models.Product.objects.create(
                 name=name,
@@ -104,21 +103,41 @@ class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageM
         return super(DeleteProductView, self).delete(request, *args, **kwargs)
 
 
-class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
-    """Form to add a new category."""
-    model = models.Category
-    fields = "__all__"
-    success_url = reverse_lazy("manage")
-    success_message = "Document category added!"
+# class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
+#     """Form to add a new category."""
+#     model = models.Category
+#     fields = "__all__"
+#     success_url = reverse_lazy("manage")
+#     success_message = "Document category added!"
+#
+#     def test_func(self):
+#         return self.request.user.groups.filter(name="manager").exists()
 
-    def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
+
+class AddCategoryView(LoginRequiredMixin, View):
+    """Form to add a new category."""
+    def get(self, request):
+        form = forms.CategoryForm
+        return render(request, "document/category_form.html", {"form": form})
+
+    def post(self, request):
+        form = forms.CategoryForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data["name"]
+            company = request.user.profile.company
+            company_category_id = models.Category.objects.filter(company=company).count() + 1
+            models.Category.objects.create(
+                name=name,
+                company=company,
+                company_category_id=company_category_id,
+            )
+        return redirect(reverse_lazy("manage"))
 
 
 class EditCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     """Form to edit an existing category."""
     model = models.Category
-    fields = "__all__"
+    fields = ("name",)
     template_name_suffix = "_update_form"
     success_url = reverse_lazy("manage")
     success_message = "Document category updated!"
