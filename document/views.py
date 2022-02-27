@@ -48,15 +48,34 @@ class ManageView(LoginRequiredMixin, UserPassesTestMixin, View):
         return render(request, "document/manage.html", {"categories": categories, "products": products})
 
 
-class AddProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
+# class AddProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
+class AddProductView(LoginRequiredMixin, View):
     """Form to add a new product."""
-    def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
+    # def test_func(self):
+    #     return self.request.user.groups.filter(name="manager").exists()
+    def get(self, request):
+        form = forms.ProductForm
+        return render(request, "document/product_form.html", {"form": form})
 
-    model = models.Product
-    fields = "__all__"
-    success_url = reverse_lazy("manage")
-    success_message = "Insurance product added!"
+    def post(self, request):
+        form = forms.ProductForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data["name"]
+            model = form.cleaned_data["model"]
+            company = request.user.profile.company
+            print("company: ", company)
+            company_product_id = models.Product.objects.filter(company=company).count() + 1
+            models.Product.objects.create(
+                name=name,
+                model=model,
+                company=company,
+                company_product_id=company_product_id,
+            )
+        return redirect(reverse_lazy("manage"))
+    # model = models.Product
+    # fields = ("name", "model")
+    # success_url = reverse_lazy("manage")
+    # success_message = "Insurance product added!"
 
 
 class EditProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
@@ -65,7 +84,7 @@ class EditProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMix
         return self.request.user.groups.filter(name="manager").exists()
 
     model = models.Product
-    fields = "__all__"
+    fields = ("name", "model")
     template_name_suffix = "_update_form"
     success_url = reverse_lazy("manage")
     success_message = "Insurance product updated!"

@@ -7,11 +7,16 @@ class Company(models.Model):
     full_name = models.CharField(max_length=100)
     code = models.CharField(max_length=32, unique=True)
 
+    def __str__(self):
+        return f"{self.name} ({self.full_name})"
+
 
 class Product(models.Model):
-    # company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    name = models.CharField(max_length=60, verbose_name="name of insurance product")
-    model = models.CharField(max_length=20, verbose_name="cash flow model")
+    company_product_id = models.PositiveIntegerField()
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    name = models.CharField(max_length=60, verbose_name="name of insurance product",
+                            help_text="E.g. Term Life Insurance")
+    model = models.CharField(max_length=20, verbose_name="cash flow model", help_text="E.g. TERM02")
 
     def __str__(self):
         return f"{self.name} ({self.model})"
