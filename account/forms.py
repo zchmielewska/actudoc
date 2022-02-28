@@ -4,7 +4,12 @@ from django.contrib.auth.models import User
 from account.models import Profile
 
 
-class UserRegistrationForm(forms.ModelForm):
+class LoginForm(forms.Form):
+    email = forms.EmailField(label="E-mail address")
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+
+class RegistrationForm(forms.ModelForm):
     password = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Repeat password", widget=forms.PasswordInput)
 

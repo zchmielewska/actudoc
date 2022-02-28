@@ -7,17 +7,19 @@
     <div class="brick">
         <table class="striped-table striped-table-top-border">
             <tr>
-                <th>Username</th>
+                <th>No</th>
                 <th>First name</th>
                 <th>Last name</th>
+                <th>E-mail</th>
                 <th>Role</th>
                 <th>Active</th>
             </tr>
             {% for user in users %}
             <tr>
-                <td>{{ user.username }}</td>
+                <td>{{ forloop.counter }}</td>
                 <td>{{ user.first_name }}</td>
                 <td>{{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
                 <td>{{ user.profile.role }}</td>
                 <td>{{ user.is_active }}</td>
             </tr>

@@ -16,10 +16,14 @@
     <div class="wrapper">
         <div class="nav-bar">
             <div class="nav-content">
-                <div><a href="/">ACTU<strong>DOC</strong></a></div>
-                <div class="push-right"><a href="{% url "add_document" %}">Add document</a></div>
-                <div><a href="{% url "manage" %}">Manage</a></div>
-                <div><a href="{% url "account:user_list" %}">Users</a></div>
+                <div><a href="/">ACTU<strong>DOC</strong> | {{ request.user.profile.company.name }}</a></div>
+                {% if user_is_contributor or user_is_admin %}
+                    <div class="push-right"><a href="{% url "add_document" %}">Add document</a></div>
+                    <div><a href="{% url "manage" %}">Manage</a></div>
+                {% endif %}
+                {% if user_is_admin %}
+                    <div><a href="{% url "account:user_list" %}">Users</a></div>
+                {% endif %}
             </div>
         </div>
 
@@ -28,7 +32,7 @@
                 <div class="profile-content">
                     <div class="push-right">
                         <a href="{% url "account:profile_detail" request.user.username %}" class="link">
-                            <strong>{{ request.user.username }}</strong>
+                            <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong>
                         </a> |
                         <a href="{% url "account:logout" %}" class="link">log out</a>
                     </div>

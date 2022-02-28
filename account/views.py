@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
@@ -6,19 +7,49 @@ from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.views import View
 
-from account.forms import UserRegistrationForm, UserEditForm, ProfileEditForm
+from account.forms import LoginForm, RegistrationForm, UserEditForm, ProfileEditForm
 from account.models import Profile
 from document.models import Company
 
 
-class RegisterView(View):
+class LoginView(View):
+    """
+    View to log in.
+
+    To log in, user should provide e-mail address and password.
+    The default Django authentication has been adjusted to accept e-mail rather than username.
+    """
     def get(self, request):
-        user_form = UserRegistrationForm()
-        return render(request, "account/register.html", {"user_form": user_form})
+        form = LoginForm()
+        return render(request, "account/login.html", {"form": form})
 
     def post(self, request):
-        user_form = UserRegistrationForm(request.POST)
-        if user_form.is_valid():
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            password = form.cleaned_data["password"]
+            user = authenticate(username=email, password=password)
+
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    url_next = request.GET.get("next", "/")
+                    return redirect(url_next)
+                else:
+                    form.add_error("email", "Account is blocked.")
+            else:
+                form.add_error("email", "Incorrect email or password.")
+        return render(request, "account/login.html", {"form": form})
+
+
+class RegisterView(View):
+    def get(self, request):
+        form = RegistrationForm()
+        return render(request, "account/register.html", {"form": form})
+
+    def post(self, request):
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
             # User can either create an account for a new company...
             if request.POST.get("company") == "new_company":
                 code = get_random_string(length=32)
@@ -32,27 +63,20 @@ class RegisterView(View):
             if request.POST.get("company") == "existing_company":
                 try:
                     code = request.POST.get("company_code")
-                    print("code: ", code)
                     company = Company.objects.get(code=code)
                 except Company.DoesNotExist:
                     messages.error(request, "Incorrect company code!")
-                    return render(request, "account/register.html", {"user_form": user_form})
+                    return render(request, "account/register.html", {"form": form})
 
-            # Data for a person is contained in two models:
-            # 1/2 User
-            new_user = user_form.save(commit=False)
+            # Data for a person is contained in two models: User and Profile
+            new_user = form.save(commit=False)
             new_user.username = str(User.objects.count() + 1)
-            new_user.set_password(user_form.cleaned_data["password"])
+            new_user.set_password(form.cleaned_data["password"])
             new_user.save()
-
-            # 2/2 Profile
-            profile = Profile.objects.create(
-                user=new_user,
-                company=company,
-            )
+            Profile.objects.create(user=new_user, company=company)
 
             return render(request, "account/register_done.html", {"new_user": new_user})
-        return render(request, "account/register.html", {"user_form": user_form})
+        return render(request, "account/register.html", {"form": form})
 
 
 class EditProfileView(LoginRequiredMixin, View):
@@ -79,5 +103,7 @@ class ProfileDetailView(LoginRequiredMixin, View):
 
 class UserListView(View):
     def get(self, request):
-        users = User.objects.all()
+        company = request.user.profile.company
+        profiles = Profile.objects.filter(company=company)
+        users = [profile.user for profile in profiles]
         return render(request, "account/list_users.html", {"users": users})

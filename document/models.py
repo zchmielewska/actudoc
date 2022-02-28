@@ -33,6 +33,7 @@ class Product(models.Model):
 
     class Meta:
         ordering = ["name"]
+        unique_together = ("company_product_id", "company")
 
 
 class Category(models.Model):
@@ -55,14 +56,20 @@ class Category(models.Model):
 
     class Meta:
         ordering = ["name"]
+        unique_together = ("company_category_id", "company")
+
+
+def document_path(instance, filename):
+    return f"{instance.company.name}/{filename}"
 
 
 class Document(models.Model):
-    # company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company_document_id = models.PositiveIntegerField()
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="insurance product")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="document category")
     validity_start = models.DateField(verbose_name="valid from")
-    file = models.FileField()
+    file = models.FileField(upload_to=document_path)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="create_user")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -73,8 +80,11 @@ class Document(models.Model):
         self.file.delete()
         super().delete(*args, **kwargs)
 
+    def slug(self):
+        return f"{self.company.name}-{self.company_document_id}"
+
     class Meta:
-        unique_together = ("product", "category", "validity_start")
+        unique_together = ("company", "product", "category", "validity_start")
 
 
 class History(models.Model):

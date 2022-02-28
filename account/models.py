@@ -15,6 +15,13 @@ User._meta.get_field('last_name').blank = False
 User._meta.get_field('last_name').null = False
 
 
+def get_name(self):
+    return f"{self.first_name} {self.last_name}"
+
+
+User.add_to_class("__str__", get_name)
+
+
 class Profile(models.Model):
     ROLES = (
         ("admin", "admin"),
@@ -24,6 +31,3 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     role = models.CharField(max_length=11, choices=ROLES, default="viewer")
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
-
-    def __str__(self):
-        return f"Profil użytkownika {self.user.username}"

@@ -23,11 +23,12 @@ class MainView(LoginRequiredMixin, View):
     Allows searching documents using a phrase.
     """
     def get(self, request):
+        company = request.user.profile.company
         phrase = request.GET.get("phrase")
         if phrase:
-            documents = utils.search(phrase)
+            documents = utils.search(phrase, company)
         else:
-            documents = models.Document.objects.order_by("-id")[:10]
+            documents = models.Document.objects.filter(company=company).order_by("-id")[:10]
 
         ctx = {
             "documents": documents,
@@ -38,13 +39,20 @@ class MainView(LoginRequiredMixin, View):
 
 
 class ManageView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """Manage products and categories. Add, edit or delete objects."""
+    """
+    Manage products and categories. Add, edit or delete objects.
+
+    Access allowed only for contributor and admin.
+    """
     def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
+        user_is_contributor = self.request.user.profile.role == "contributor"
+        user_is_admin = self.request.user.profile.role == "admin"
+        return user_is_contributor or user_is_admin
 
     def get(self, request):
-        categories = models.Category.objects.all().order_by("id")
-        products = models.Product.objects.all().order_by("id")
+        company = self.request.user.profile.company
+        categories = models.Category.objects.filter(company=company).order_by("id")
+        products = models.Product.objects.filter(company=company).order_by("id")
         return render(request, "document/manage.html", {"categories": categories, "products": products})
 
 
@@ -163,37 +171,43 @@ class DeleteCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessage
 class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Add a new document.
+
+    User chooses products and categories only from the ones available in their company.
     """
     def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
+        return utils.user_is_contributor_or_admin(self.request)
 
     def get(self, request):
-        form = forms.DocumentForm
+        form = forms.DocumentForm()
+        form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
+        form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
         return render(request, "document/document_form.html", {"form": form})
 
     def post(self, request):
         form = forms.DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.cleaned_data.get("product")
-            category = form.cleaned_data.get("category")
-            validity_start = form.cleaned_data.get("validity_start")
-            form_file = form.cleaned_data.get("file")
-
+            cd = form.cleaned_data
+            form_file = cd.get("file")
             document = models.Document.objects.create(
-                product=product,
-                category=category,
-                validity_start=validity_start,
+                company_document_id=models.Document.objects.filter(company=request.user.profile.company).count() + 1,
+                company=request.user.profile.company,
+                product=cd.get("product"),
+                category=cd.get("category"),
+                validity_start=cd.get("validity_start"),
                 file=form_file,
                 created_by=request.user,
             )
+            #TODO
             if document.file != form_file:
                 text = utils.get_filename_msg(document, sent_filename=form_file.name)
                 messages.info(request, text)
 
             messages.success(request, "Document added!")
             return redirect("main")
-
-        return render(request, "document/document_form.html", {"form": form})
+        else:
+            form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
+            form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
+            return render(request, "document/document_form.html", {"form": form})
 
 
 class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

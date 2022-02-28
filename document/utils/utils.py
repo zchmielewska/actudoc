@@ -3,7 +3,7 @@ from django.utils import timezone
 from document import models
 
 
-def search(phrase):
+def search(phrase, company):
     """
     Search documents with phrase.
 
@@ -11,16 +11,18 @@ def search(phrase):
     id, product name, product model, category, validity start, file, created by, created at.
 
     :param phrase: string, phrase based on which the documents are filtered
+    :param company: company model object
     :return: queryset
     """
-    d1 = models.Document.objects.filter(id__icontains=phrase)
-    d2 = models.Document.objects.filter(product__name__icontains=phrase)
-    d3 = models.Document.objects.filter(product__model__icontains=phrase)
-    d4 = models.Document.objects.filter(category__name__icontains=phrase)
-    d5 = models.Document.objects.filter(validity_start__icontains=phrase)
-    d6 = models.Document.objects.filter(file__icontains=phrase)
-    d7 = models.Document.objects.filter(created_by__username__icontains=phrase)
-    d8 = models.Document.objects.filter(created_at__icontains=phrase)
+    company_documents = models.Document.objects.filter(company=company)
+    d1 = company_documents.filter(id__icontains=phrase)
+    d2 = company_documents.filter(product__name__icontains=phrase)
+    d3 = company_documents.filter(product__model__icontains=phrase)
+    d4 = company_documents.filter(category__name__icontains=phrase)
+    d5 = company_documents.filter(validity_start__icontains=phrase)
+    d6 = company_documents.filter(file__icontains=phrase)
+    d7 = company_documents.filter(created_by__username__icontains=phrase)
+    d8 = company_documents.filter(created_at__icontains=phrase)
     all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8
     documents = all_documents.distinct().order_by("-id")
     return documents
@@ -104,3 +106,9 @@ def get_filename_msg(document, sent_filename):
         text += " Spaces have been changed to underscores."
 
     return text
+
+
+def user_is_contributor_or_admin(request):
+    user_is_contributor = request.user.profile.role == "contributor"
+    user_is_admin = request.user.profile.role == "admin"
+    return user_is_contributor or user_is_admin
