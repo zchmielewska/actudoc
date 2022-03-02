@@ -6,13 +6,13 @@
         <form method="post">
             {% csrf_token %}
 
-            {% if object.number_of_documents > 0 %}
+            {% if product.number_of_documents > 0 %}
                 <p style="color: rgba(220, 53, 69, 1); font-weight: bold;">DANGER!</p>
                 <p>If you delete this insurance product, you will also delete
-                    <strong>{{ object.number_of_documents }}</strong> associated documents!</p>
+                    <strong>{{ product.number_of_documents }}</strong> associated documents!</p>
             {% endif %}
 
-            <p>Do you really want to delete the insurance product <strong>{{ object }}</strong>?</p>
+            <p>Do you really want to delete the insurance product <strong>{{ product }}</strong>?</p>
 
             <div class="vertical-center">
                 <button type="submit" class="button red-button">Delete insurance product</button>

@@ -23,8 +23,8 @@
                 <td>{{ forloop.counter }}</td>
                 <td>{{ product.model }}</td>
                 <td>{{ product.name }}</td>
-                <td><a href="{% url "edit_product" product.id %}" class="link">edit</a></td>
-                <td><a href="{% url "delete_product" product.id %}" class="link">delete</a></td>
+                <td><a href="{% url "edit_product" request.user.profile.company.name product.company_product_id %}" class="link">edit</a></td>
+                <td><a href="{% url "delete_product" request.user.profile.company.name product.company_product_id %}" class="link">delete</a></td>
             </tr>
             {% endfor %}
         </table>
@@ -55,8 +55,8 @@
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ category.name }}</td>
-                <td><a href="{% url "edit_category" category.id %}" class="link">edit</a></td>
-                <td><a href="{% url "delete_category" category.id %}" class="link">delete</a></td>
+                <td><a href="{% url "edit_category" request.user.profile.company.name category.company_category_id %}" class="link">edit</a></td>
+                <td><a href="{% url "delete_category" request.user.profile.company.name category.company_category_id %}" class="link">delete</a></td>
             </tr>
             {% endfor %}
         </table>

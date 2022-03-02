@@ -42,7 +42,7 @@
                 </table>
 
                 <div class="vertical-center">
-                    <a href="{% url "document_detail" document.id %}" class="link">show more</a>
+                    <a href="{% url "document_detail" request.user.profile.company.name document.company_document_id %}" class="link">show more</a>
                 </div>
             </div>
         </div>

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -19,8 +20,11 @@ class MainView(LoginRequiredMixin, View):
     """
     Home page of the application.
 
-    Shows ten newest documents in reverse-chronological order.
+    Shows ten newest documents in reverse-chronological order of company's documents.
     Allows searching documents using a phrase.
+
+    Access company: filtering of objects
+    Access users: all
     """
     def get(self, request):
         company = request.user.profile.company
@@ -40,14 +44,13 @@ class MainView(LoginRequiredMixin, View):
 
 class ManageView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
-    Manage products and categories. Add, edit or delete objects.
+    Manage products and categories of the company. Add, edit or delete objects.
 
-    Access allowed only for contributor and admin.
+    Access company: filtering of objects
+    Access users: contributors and admins (test_func)
     """
     def test_func(self):
-        user_is_contributor = self.request.user.profile.role == "contributor"
-        user_is_admin = self.request.user.profile.role == "admin"
-        return user_is_contributor or user_is_admin
+        return utils.user_is_contributor_or_admin(self.request)
 
     def get(self, request):
         company = self.request.user.profile.company
@@ -56,11 +59,16 @@ class ManageView(LoginRequiredMixin, UserPassesTestMixin, View):
         return render(request, "document/manage.html", {"categories": categories, "products": products})
 
 
-# class AddProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
-class AddProductView(LoginRequiredMixin, View):
-    """Form to add a new product."""
-    # def test_func(self):
-    #     return self.request.user.groups.filter(name="manager").exists()
+class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    Form to add a new product.
+
+    Access company: posted form will take company info from user
+    Access users: contributors and admins (test_func)
+    """
+    def test_func(self):
+        return utils.user_is_contributor_or_admin(self.request)
+
     def get(self, request):
         form = forms.ProductForm
         return render(request, "document/product_form.html", {"form": form})
@@ -68,62 +76,101 @@ class AddProductView(LoginRequiredMixin, View):
     def post(self, request):
         form = forms.ProductForm(request.POST)
         if form.is_valid():
-            name = form.cleaned_data["name"]
-            model = form.cleaned_data["model"]
             company = request.user.profile.company
             company_product_id = models.Product.objects.filter(company=company).count() + 1
+            name = form.cleaned_data["name"]
+            model = form.cleaned_data["model"]
             models.Product.objects.create(
-                name=name,
-                model=model,
                 company=company,
                 company_product_id=company_product_id,
+                name=name,
+                model=model,
             )
+            messages.success(request, "Insurance product added!")
+            return redirect(reverse_lazy("manage"))
+        else:
+            return render(request, "document/product_form.html", {"form": form})
+
+
+class EditProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, View):
+    """
+    Form to edit an existing product.
+
+    Access company: url + logged in user (get + post)
+    Access users: contributores and admins (test_func)
+    """
+    def test_func(self):
+        return utils.user_is_contributor_or_admin(self.request)
+
+    def instance(self, company_name, company_product_id):
+        company = get_object_or_404(models.Company, name=company_name)
+        product = get_object_or_404(models.Product, company=company, company_product_id=company_product_id)
+        return product
+
+    def get(self, request, company_name, company_product_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        product = self.instance(company_name, company_product_id)
+        form = forms.ProductForm(instance=product)
+        return render(request, "document/product_update_form.html", {"form": form})
+
+    def post(self, request, company_name, company_product_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        product = self.instance(company_name, company_product_id)
+        form = forms.ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Insurance product updated!")
+            return redirect(reverse_lazy("manage"))
+        else:
+            return render(request, "document/product_update_form.html", {"form": form})
+
+
+class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    Delete a product.
+
+    Access company: url + logged in user (get + post)
+    Access users: contributores and admins (test_func)
+    """
+    def test_func(self):
+        return utils.user_is_contributor_or_admin(self.request)
+
+    def instance(self, company_name, company_product_id):
+        company = get_object_or_404(models.Company, name=company_name)
+        product = get_object_or_404(models.Product, company=company, company_product_id=company_product_id)
+        return product
+
+    def get(self, request, company_name, company_product_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        product = self.instance(company_name, company_product_id)
+        return render(request, "document/product_confirm_delete.html", {"product": product})
+
+    def post(self, request, company_name, company_product_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        product = self.instance(company_name, company_product_id)
+        product.delete()
+        messages.success(request, "Insurance product deleted!")
         return redirect(reverse_lazy("manage"))
-    # model = models.Product
-    # fields = ("name", "model")
-    # success_url = reverse_lazy("manage")
-    # success_message = "Insurance product added!"
 
 
-class EditProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
-    """Form to edit an existing product."""
+class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    Form to add a new category.
+
+    Access company: posted form will take company info from user
+    Access users: contributores and admins (test_func)
+    """
     def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
+        return utils.user_is_contributor_or_admin(self.request)
 
-    model = models.Product
-    fields = ("name", "model")
-    template_name_suffix = "_update_form"
-    success_url = reverse_lazy("manage")
-    success_message = "Insurance product updated!"
-
-
-class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
-    """Delete a product."""
-    model = models.Product
-    success_url = reverse_lazy("manage")
-    success_message = "Insurance product deleted!"
-
-    def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(DeleteProductView, self).delete(request, *args, **kwargs)
-
-
-# class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
-#     """Form to add a new category."""
-#     model = models.Category
-#     fields = "__all__"
-#     success_url = reverse_lazy("manage")
-#     success_message = "Document category added!"
-#
-#     def test_func(self):
-#         return self.request.user.groups.filter(name="manager").exists()
-
-
-class AddCategoryView(LoginRequiredMixin, View):
-    """Form to add a new category."""
     def get(self, request):
         form = forms.CategoryForm
         return render(request, "document/category_form.html", {"form": form})
@@ -131,41 +178,87 @@ class AddCategoryView(LoginRequiredMixin, View):
     def post(self, request):
         form = forms.CategoryForm(request.POST)
         if form.is_valid():
-            name = form.cleaned_data["name"]
             company = request.user.profile.company
             company_category_id = models.Category.objects.filter(company=company).count() + 1
+            name = form.cleaned_data["name"]
             models.Category.objects.create(
-                name=name,
                 company=company,
                 company_category_id=company_category_id,
+                name=name,
             )
+            messages.success(request, "Document category added!")
+            return redirect(reverse_lazy("manage"))
+        else:
+            return render(request, "document/category_form.html", {"form": form})
+
+
+class EditCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    Form to edit an existing category.
+
+    Access company: url + logged in user (get + post)
+    Access users: contributores and admins (test_func)
+    """
+    def test_func(self):
+        return utils.user_is_contributor_or_admin(self.request)
+
+    def instance(self, company_name, company_category_id):
+        company = get_object_or_404(models.Company, name=company_name)
+        category = get_object_or_404(models.Category, company=company, company_category_id=company_category_id)
+        return category
+
+    def get(self, request, company_name, company_category_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        category = self.instance(company_name, company_category_id)
+        form = forms.CategoryForm(instance=category)
+        return render(request, "document/category_update_form.html", {"form": form})
+
+    def post(self, request, company_name, company_category_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        category = self.instance(company_name, company_category_id)
+        form = forms.CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Document category updated!")
+            return redirect(reverse_lazy("manage"))
+        else:
+            return render(request, "document/category_update_form.html", {"form": form})
+
+
+class DeleteCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    Delete a category.
+
+    Access company: url + logged in user (get + post)
+    Access users: contributores and admins (test_func)
+    """
+    def test_func(self):
+        return utils.user_is_contributor_or_admin(self.request)
+
+    def instance(self, company_name, company_category_id):
+        company = get_object_or_404(models.Company, name=company_name)
+        category = get_object_or_404(models.Category, company=company, company_category_id=company_category_id)
+        return category
+
+    def get(self, request, company_name, company_category_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        category = self.instance(company_name, company_category_id)
+        return render(request, "document/category_confirm_delete.html", {"category": category})
+
+    def post(self, request, company_name, company_category_id):
+        if request.user.profile.company.name != company_name:
+            raise PermissionDenied
+
+        category = self.instance(company_name, company_category_id)
+        category.delete()
+        messages.success(request, "Document category deleted!")
         return redirect(reverse_lazy("manage"))
-
-
-class EditCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
-    """Form to edit an existing category."""
-    model = models.Category
-    fields = ("name",)
-    template_name_suffix = "_update_form"
-    success_url = reverse_lazy("manage")
-    success_message = "Document category updated!"
-
-    def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
-
-
-class DeleteCategoryView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
-    """Delete a category."""
-    model = models.Category
-    success_url = reverse_lazy("manage")
-    success_message = "Document category deleted!"
-
-    def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(DeleteCategoryView, self).delete(request, *args, **kwargs)
 
 
 class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -173,6 +266,9 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
     Add a new document.
 
     User chooses products and categories only from the ones available in their company.
+
+    Access company: posted form will take company info from user
+    Access users: contributores and admins (test_func)
     """
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -189,8 +285,8 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
             cd = form.cleaned_data
             form_file = cd.get("file")
             document = models.Document.objects.create(
-                company_document_id=models.Document.objects.filter(company=request.user.profile.company).count() + 1,
                 company=request.user.profile.company,
+                company_document_id=models.Document.objects.filter(company=request.user.profile.company).count() + 1,
                 product=cd.get("product"),
                 category=cd.get("category"),
                 validity_start=cd.get("validity_start"),
@@ -210,48 +306,109 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
             return render(request, "document/document_form.html", {"form": form})
 
 
-class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Edit an existing document and save history of the changes made to the document.
     """
-    model = models.Document
-    template_name_suffix = "_update_form"
-    form_class = forms.DocumentForm
+    # model = models.Document
+    # template_name_suffix = "_update_form"
+    # form_class = forms.DocumentForm
 
     def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
+        return utils.user_is_contributor_or_admin(self.request)
 
-    def get_initial(self):
-        initial = super(EditDocumentView, self).get_initial()
-        initial["validity_start"] = self.object.validity_start.strftime("%Y-%m-%d")
-        return initial
+    def get(self, request, company_name, company_document_id):
+        company = get_object_or_404(models.Company, name=company_name)
+        document = get_object_or_404(models.Document, company=company, company_document_id=company_document_id)
+        form = forms.DocumentForm(instance=document)
+        form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
+        form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
+        return render(request, "document/document_update_form.html", {"form": form})
 
-    def form_valid(self, form):
-        # Form contains the filename delivered by the user
-        form_file = form.cleaned_data.get("file")
+    # def get_initial(self):
+    #     initial = super(EditDocumentView, self).get_initial()
+    #     initial["validity_start"] = self.object.validity_start.strftime("%Y-%m-%d")
+    #     return initial
 
-        # Filename after saving might differ from the one uploaded
-        document_new = form.save(commit=False)
-        document_old = models.Document.objects.get(id=self.object.id)
+    def post(self, request, company_name, company_document_id):
+        form = forms.DocumentForm(request.POST, request.FILES)
 
-        # Filename is converted to None after deletion
-        data_old = document_old.__dict__.copy()
-        if self.request.FILES.get("file"):
-            document_old.file.delete()
+        if form.is_valid():
+            # Form contains the filename delivered by the user
+            form_file = form.cleaned_data.get("file")
 
-        # History of changes gets saved
-        document_new.save()
-        data_new = document_new.__dict__.copy()
-        utils.save_history(data_old, data_new, user=self.request.user)
+            # Filename after saving might differ from the one uploaded
+            document_new = form.save(commit=False)
+            document_old = models.Document.objects.get(id=self.object.id)
 
-        messages.success(self.request, "Document updated!")
+            # Filename is converted to None after deletion
+            data_old = document_old.__dict__.copy()
+            if self.request.FILES.get("file"):
+                document_old.file.delete()
 
-        # Other documents might use the file with the same name
-        if document_new.file != form_file:
-            text = utils.get_filename_msg(document_new, sent_filename=form_file.name)
-            messages.info(self.request, text)
+            # History of changes gets saved
+            document_new.save()
+            data_new = document_new.__dict__.copy()
+            utils.save_history(data_old, data_new, user=self.request.user)
 
-        return redirect("document_detail", document_new.id)
+            messages.success(self.request, "Document updated!")
+
+            # Other documents might use the file with the same name
+            if document_new.file != form_file:
+                text = utils.get_filename_msg(document_new, sent_filename=form_file.name)
+                messages.info(self.request, text)
+
+            return redirect("document_detail", document_new.id)
+        else:
+            print("invalid form")
+            form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
+            form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
+            return render(request, "document/document_update_form.html", {"form": form})
+
+
+# class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+#     """
+#     Edit an existing document and save history of the changes made to the document.
+#     """
+#     model = models.Document
+#     template_name_suffix = "_update_form"
+#     form_class = forms.DocumentForm
+#
+#     def test_func(self):
+#         # utils.user_is_contributor_or_admin(self.request)
+#         return self.request.user.groups.filter(name="manager").exists()
+#
+#     def get_initial(self):
+#         initial = super(EditDocumentView, self).get_initial()
+#         initial["validity_start"] = self.object.validity_start.strftime("%Y-%m-%d")
+#         return initial
+#
+#     def form_valid(self, form):
+#         # Form contains the filename delivered by the user
+#         form_file = form.cleaned_data.get("file")
+#
+#         # Filename after saving might differ from the one uploaded
+#         document_new = form.save(commit=False)
+#         document_old = models.Document.objects.get(id=self.object.id)
+#
+#         # Filename is converted to None after deletion
+#         data_old = document_old.__dict__.copy()
+#         if self.request.FILES.get("file"):
+#             document_old.file.delete()
+#
+#         # History of changes gets saved
+#         document_new.save()
+#         data_new = document_new.__dict__.copy()
+#         utils.save_history(data_old, data_new, user=self.request.user)
+#
+#         messages.success(self.request, "Document updated!")
+#
+#         # Other documents might use the file with the same name
+#         if document_new.file != form_file:
+#             text = utils.get_filename_msg(document_new, sent_filename=form_file.name)
+#             messages.info(self.request, text)
+#
+#         return redirect("document_detail", document_new.id)
 
 
 class DeleteDocumentView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -266,8 +423,13 @@ class DeleteDocumentView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class DocumentDetailView(LoginRequiredMixin, View):
     """Show document's details."""
-    def get(self, request, pk):
-        document = get_object_or_404(models.Document, pk=pk)
+    # def get(self, request, pk):
+    def get(self, request, company_name, company_document_id):
+        company = get_object_or_404(models.Company, name=company_name)
+        if company != request.user.profile.company:
+            raise Http404
+
+        document = get_object_or_404(models.Document, company=company, company_document_id=company_document_id)
         history_set = document.history_set.all().order_by("-changed_at")
         ctx = {
             "document": document,

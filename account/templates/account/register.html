@@ -39,9 +39,9 @@
                     <span class="helptext">e.g. Alphabetical Insurance Company</span>
                 </p>
                 <p>
-                    <label for="company_short_name">Company short name (only letters):</label>
-                    <input type="text" id="company_short_name" name="company_short_name" style="text-transform:uppercase" onkeydown="return /[a-z]/i.test(event.key)" maxlength="32"><br>
-                    <span class="helptext">e.g. ALPHA</span>
+                    <label for="company_short_name">Company short name (only lowercase letters):</label>
+                    <input type="text" id="company_short_name" name="company_short_name" style="text-transform:lowercase" onkeydown="return /[a-z]/i.test(event.key)" maxlength="32"><br>
+                    <span class="helptext">e.g. alpha</span>
                 </p>
             </div>
 

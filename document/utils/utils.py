@@ -112,3 +112,7 @@ def user_is_contributor_or_admin(request):
     user_is_contributor = request.user.profile.role == "contributor"
     user_is_admin = request.user.profile.role == "admin"
     return user_is_contributor or user_is_admin
+
+
+def user_is_employee(request):
+    pass

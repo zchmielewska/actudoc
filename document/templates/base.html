@@ -16,14 +16,25 @@
     <div class="wrapper">
         <div class="nav-bar">
             <div class="nav-content">
-                <div><a href="/">ACTU<strong>DOC</strong> | {{ request.user.profile.company.name }}</a></div>
+                <div><a href="/">ACTU<strong>DOC</strong>
+                    {% if request.user.is_authenticated %}
+                        | {{ request.user.profile.company.name }}
+                    {% endif %}
+                </a></div>
+
                 {% if user_is_contributor or user_is_admin %}
                     <div class="push-right"><a href="{% url "add_document" %}">Add document</a></div>
-                    <div><a href="{% url "manage" %}">Manage</a></div>
+                {% else %}
+                    <div class="push-right">
+                        <div class="tooltip">
+                            <a>Add document</a>
+                            <span class="tooltiptext">Tooltip text</span>
+                        </div>
+                    </div>
                 {% endif %}
-                {% if user_is_admin %}
-                    <div><a href="{% url "account:user_list" %}">Users</a></div>
-                {% endif %}
+
+                <div><a href="{% url "manage" %}">Manage</a></div>
+                <div><a href="{% url "account:user_list" %}">Users</a></div>
             </div>
         </div>
 

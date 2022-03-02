@@ -10,10 +10,13 @@ class Company(models.Model):
     def __str__(self):
         return f"{self.name} ({self.full_name})"
 
+    class Meta:
+        indexes = [models.Index(fields=["name", ])]
+
 
 class Product(models.Model):
-    company_product_id = models.PositiveIntegerField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company_product_id = models.PositiveIntegerField()
     name = models.CharField(max_length=60, verbose_name="name of insurance product",
                             help_text="E.g. Term Life Insurance")
     model = models.CharField(max_length=20, verbose_name="cash flow model", help_text="E.g. TERM02")
@@ -32,13 +35,14 @@ class Product(models.Model):
         return self.document_set.count()
 
     class Meta:
+        indexes = [models.Index(fields=["company", "company_product_id"])]
         ordering = ["name"]
         unique_together = ("company_product_id", "company")
 
 
 class Category(models.Model):
-    company_category_id = models.PositiveIntegerField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company_category_id = models.PositiveIntegerField()
     name = models.CharField(max_length=100, help_text="E.g. Terms and conditions or Technical description")
 
     def __str__(self):
@@ -55,6 +59,7 @@ class Category(models.Model):
         return self.document_set.count()
 
     class Meta:
+        indexes = [models.Index(fields=["company", "company_category_id"])]
         ordering = ["name"]
         unique_together = ("company_category_id", "company")
 
@@ -64,8 +69,8 @@ def document_path(instance, filename):
 
 
 class Document(models.Model):
-    company_document_id = models.PositiveIntegerField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company_document_id = models.PositiveIntegerField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="insurance product")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="document category")
     validity_start = models.DateField(verbose_name="valid from")
@@ -84,6 +89,7 @@ class Document(models.Model):
         return f"{self.company.name}-{self.company_document_id}"
 
     class Meta:
+        indexes = [models.Index(fields=["company", "company_document_id"])]
         unique_together = ("company", "product", "category", "validity_start")
 
 
