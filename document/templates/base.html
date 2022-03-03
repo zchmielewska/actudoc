@@ -22,18 +22,20 @@
                     {% endif %}
                 </a></div>
 
-                <div class="push-right">
-                    {% if user_is_contributor or user_is_admin %}
-                        <a href="{% url "add_document" %}">Add document</a>
-                    {% else %}
-                        <span class="disabled tooltip">Add document
-                            <span class="tooltip-text">Only contributors can add documents.</span>
-                        </span>
-                    {% endif %}
-                </div>
+                {% if request.user.username %}
+                    <div class="push-right">
+                        {% if user_is_contributor or user_is_admin %}
+                            <a href="{% url "add_document" %}">Add document</a>
+                        {% else %}
+                            <span class="nav-element disabled tooltip">Add document
+                                <span class="tooltip-text">Only contributors can add documents.</span>
+                            </span>
+                        {% endif %}
+                    </div>
 
-                <div><a href="{% url "manage" %}">Manage</a></div>
-                <div><a href="{% url "account:user_list" %}">Users</a></div>
+                    <div><a href="{% url "manage" %}">Manage</a></div>
+                    <div><a href="{% url "account:user_list" %}">Users</a></div>
+                {% endif %}
             </div>
         </div>
 

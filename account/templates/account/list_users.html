@@ -5,6 +5,28 @@
 {% block content %}
     <div class="vertical-center"><h2>Users</h2></div>
     <div class="brick">
+        <h3 style="margin-top: 0;">Company</h3>
+
+        <table class="striped-table striped-table-top-border">
+            <colgroup>
+                <col style="width: auto;">
+                <col style="width: 100%;">
+            </colgroup>
+            <tr>
+                <td>Full name:</td>
+                <td>{{ request.user.profile.company.full_name }}</td>
+            </tr>
+            <tr>
+                <td>Short name: </td>
+                <td>{{ request.user.profile.company.name }}</td>
+            </tr>
+            <tr>
+                <td>Registration code: </td>
+                <td>{{ request.user.profile.company.code }}</td>
+            </tr>
+        </table>
+
+        <h3>Employees</h3>
         <table class="striped-table striped-table-top-border">
             <tr>
                 <th>No</th>

@@ -101,7 +101,7 @@ class ProfileDetailView(LoginRequiredMixin, View):
         return render(request, "account/profile_detail.html", {"user": user})
 
 
-class UserListView(View):
+class UserListView(LoginRequiredMixin, View):
     def get(self, request):
         company = request.user.profile.company
         profiles = Profile.objects.filter(company=company)

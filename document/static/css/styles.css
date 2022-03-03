@@ -33,7 +33,7 @@ body {
   margin-left: auto;
 }
 
-.nav-content a, span {
+.nav-content a, .nav-content .nav-element {
   display: inline-block;
   padding: 14px 16px;
 }
