@@ -42,16 +42,13 @@ class MainView(LoginRequiredMixin, View):
         return render(request, "document/main.html", ctx)
 
 
-class ManageView(LoginRequiredMixin, UserPassesTestMixin, View):
+class ManageView(LoginRequiredMixin, View):
     """
     Manage products and categories of the company. Add, edit or delete objects.
 
     Access company: filtering of objects
-    Access users: contributors and admins (test_func)
+    Access users: all can access but only contributors and admins have links for edit / delete
     """
-    def test_func(self):
-        return utils.user_is_contributor_or_admin(self.request)
-
     def get(self, request):
         company = self.request.user.profile.company
         categories = models.Category.objects.filter(company=company).order_by("id")

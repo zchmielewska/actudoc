@@ -22,16 +22,15 @@
                     {% endif %}
                 </a></div>
 
-                {% if user_is_contributor or user_is_admin %}
-                    <div class="push-right"><a href="{% url "add_document" %}">Add document</a></div>
-                {% else %}
-                    <div class="push-right">
-                        <div class="tooltip">
-                            <a>Add document</a>
-                            <span class="tooltiptext">Tooltip text</span>
-                        </div>
-                    </div>
-                {% endif %}
+                <div class="push-right">
+                    {% if user_is_contributor or user_is_admin %}
+                        <a href="{% url "add_document" %}">Add document</a>
+                    {% else %}
+                        <span class="disabled tooltip">Add document
+                            <span class="tooltip-text">Only contributors can add documents.</span>
+                        </span>
+                    {% endif %}
+                </div>
 
                 <div><a href="{% url "manage" %}">Manage</a></div>
                 <div><a href="{% url "account:user_list" %}">Users</a></div>
@@ -43,7 +42,9 @@
                 <div class="profile-content">
                     <div class="push-right">
                         <a href="{% url "account:profile_detail" request.user.username %}" class="link">
-                            <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong>
+                            <strong>
+                                {{ request.user.first_name }} {{ request.user.last_name }} ({{ request.user.profile.role }})
+                            </strong>
                         </a> |
                         <a href="{% url "account:logout" %}" class="link">log out</a>
                     </div>

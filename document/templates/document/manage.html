@@ -23,14 +23,37 @@
                 <td>{{ forloop.counter }}</td>
                 <td>{{ product.model }}</td>
                 <td>{{ product.name }}</td>
-                <td><a href="{% url "edit_product" request.user.profile.company.name product.company_product_id %}" class="link">edit</a></td>
-                <td><a href="{% url "delete_product" request.user.profile.company.name product.company_product_id %}" class="link">delete</a></td>
+                {% if user_is_contributor or user_is_admin %}
+                    <td>
+                        <a href="{% url "edit_product" request.user.profile.company.name product.company_product_id %}" class="link">edit</a>
+                    </td>
+                    <td>
+                        <a href="{% url "delete_product" request.user.profile.company.name product.company_product_id %}" class="link">delete</a>
+                    </td>
+                {% else %}
+                    <td>
+                        <span class="disabled link-disabled tooltip">edit
+                            <span class="tooltip-text">Only contributors can edit products.</span>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="disabled link-disabled tooltip">delete
+                            <span class="tooltip-text">Only contributors can delete products.</span>
+                        </span>
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
 
         <div class="vertical-center">
-            <a href="{% url "add_product" %}" class="button green-button">Add insurance product</a>
+            {% if user_is_contributor or user_is_admin %}
+                <a href="{% url "add_product" %}" class="button green-button">Add insurance product</a>
+            {% else %}
+                <span class="button disabled-button tooltip">Add insurance product
+                    <span class="tooltip-text">Only contributors can add products.</span>
+                </span>
+            {% endif %}
         </div>
     </div>
 
@@ -55,14 +78,37 @@
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ category.name }}</td>
-                <td><a href="{% url "edit_category" request.user.profile.company.name category.company_category_id %}" class="link">edit</a></td>
-                <td><a href="{% url "delete_category" request.user.profile.company.name category.company_category_id %}" class="link">delete</a></td>
+                {% if user_is_contributor or user_is_admin %}
+                <td>
+                    <a href="{% url "edit_category" request.user.profile.company.name category.company_category_id %}" class="link">edit</a>
+                </td>
+                <td>
+                    <a href="{% url "delete_category" request.user.profile.company.name category.company_category_id %}" class="link">delete</a>
+                </td>
+                {% else %}
+                <td>
+                    <span class="disabled link-disabled tooltip">edit
+                        <span class="tooltip-text">Only contributors can edit categories.</span>
+                    </span>
+                </td>
+                <td>
+                    <span class="disabled link-disabled tooltip">delete
+                        <span class="tooltip-text">Only contributors can delete categories.</span>
+                    </span>
+                </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
 
         <div class="vertical-center">
-            <a href="{% url "add_category" %}" class="button green-button">Add document category</a>
+            {% if user_is_contributor or user_is_admin %}
+                <a href="{% url "add_category" %}" class="button green-button">Add document category</a>
+            {% else %}
+                <span class="button disabled-button tooltip">Add document category
+                    <span class="tooltip-text">Only contributors can add categories.</span>
+                </span>
+            {% endif %}
         </div>
     </div>
 
