@@ -27,10 +27,16 @@ class RegistrationForm(forms.ModelForm):
 class UserEditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("username", "first_name", "last_name", "email", "is_active")
+        fields = ("first_name", "last_name", "email")
 
 
-class ProfileEditForm(forms.ModelForm):
+class UserEditByAdminForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "email", "is_active")
+
+
+class ProfileEditByAdminForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ("role",)

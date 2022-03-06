@@ -13,10 +13,6 @@
                 <col style="width: 100%;">
             </colgroup>
             <tr>
-                <td>Username:</td>
-                <td>{{ user.username }}</td>
-            </tr>
-            <tr>
                 <td>First name:</td>
                 <td>{{ user.first_name }}</td>
             </tr>
@@ -29,16 +25,16 @@
                 <td>{{ user.email }}</td>
             </tr>
             <tr>
+                <td>Role:</td>
+                <td>{{ user.profile.role }}</td>
+            </tr>
+            <tr>
                 <td>Joined:</td>
                 <td>{{ user.date_joined }}</td>
             </tr>
             <tr>
-                <td>Date of birth:</td>
-                <td>{{ user.profile.date_of_birth }}</td>
-            </tr>
-            <tr>
-                <td>Role:</td>
-                <td>{{ user.profile.role }}</td>
+                <td>Last login:</td>
+                <td>{{ user.last_login }}</td>
             </tr>
         </table>
 
