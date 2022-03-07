@@ -1,5 +1,11 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+
+
+def validate_file_extension(value):
+    if value.file.content_type != 'application/pdf':
+        raise ValidationError(u'Only PDF files can be uploaded.')
 
 
 class Company(models.Model):
@@ -74,7 +80,7 @@ class Document(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="insurance product")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="document category")
     validity_start = models.DateField(verbose_name="valid from")
-    file = models.FileField(upload_to=document_path)
+    file = models.FileField(upload_to=document_path, validators=[validate_file_extension])
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="create_user")
     created_at = models.DateTimeField(auto_now_add=True)
 

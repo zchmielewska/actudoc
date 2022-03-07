@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -74,7 +75,8 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = forms.ProductForm(request.POST)
         if form.is_valid():
             company = request.user.profile.company
-            company_product_id = models.Product.objects.filter(company=company).count() + 1
+            latest_product = models.Product.objects.filter(company=company).latest("company_product_id")
+            company_product_id = latest_product.company_product_id + 1
             name = form.cleaned_data["name"]
             model = form.cleaned_data["model"]
             models.Product.objects.create(
@@ -176,7 +178,8 @@ class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = forms.CategoryForm(request.POST)
         if form.is_valid():
             company = request.user.profile.company
-            company_category_id = models.Category.objects.filter(company=company).count() + 1
+            latest_category = models.Category.objects.filter(company=company).latest("company_category_id")
+            company_category_id = latest_category.company_category_id + 1
             name = form.cleaned_data["name"]
             models.Category.objects.create(
                 company=company,
@@ -271,28 +274,44 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
         return utils.user_is_contributor_or_admin(self.request)
 
     def get(self, request):
-        form = forms.DocumentForm()
+        form = forms.DocumentAddForm()
         form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
         form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
         return render(request, "document/document_form.html", {"form": form})
 
     def post(self, request):
-        form = forms.DocumentForm(request.POST, request.FILES)
+        form = forms.DocumentAddForm(request.POST, request.FILES)
+        company = request.user.profile.company
         if form.is_valid():
             cd = form.cleaned_data
             form_file = cd.get("file")
-            document = models.Document.objects.create(
-                company=request.user.profile.company,
-                company_document_id=models.Document.objects.filter(company=request.user.profile.company).count() + 1,
-                product=cd.get("product"),
-                category=cd.get("category"),
-                validity_start=cd.get("validity_start"),
-                file=form_file,
-                created_by=request.user,
-            )
-            #TODO
-            if document.file != form_file:
-                text = utils.get_filename_msg(document, sent_filename=form_file.name)
+            latest_document = models.Document.objects.filter(company=company).latest("company_document_id")
+            company_document_id = latest_document.company_document_id + 1
+            try:
+                document = models.Document.objects.create(
+                    company=request.user.profile.company,
+                    company_document_id=company_document_id,
+                    product=cd.get("product"),
+                    category=cd.get("category"),
+                    validity_start=cd.get("validity_start"),
+                    file=form_file,
+                    created_by=request.user,
+                )
+            except IntegrityError:
+                d = models.Document.objects.filter(company=company,
+                                                   product=cd.get("product"),
+                                                   category=cd.get("category"),
+                                                   validity_start=cd.get("validity_start")).first()
+                form.add_error("product", f"Document #{d.company_document_id} is already associated with this product, "
+                                          f"category and validity start date.")
+                return render(request, "document/document_form.html", {"form": form})
+
+            # Saved filename might be different from the sent filename
+            saved_filename = os.path.basename(document.file.name)
+            sent_filename = form_file.name
+            if saved_filename != sent_filename:
+                company_name = request.user.profile.company.name
+                text = utils.get_filename_msg(document, sent_filename=sent_filename, company_name=company_name)
                 messages.info(request, text)
 
             messages.success(request, "Document added!")
@@ -307,9 +326,10 @@ class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Edit an existing document and save history of the changes made to the document.
     """
-    # model = models.Document
-    # template_name_suffix = "_update_form"
-    # form_class = forms.DocumentForm
+    def instance(self, company_name, company_document_id):
+        company = get_object_or_404(models.Company, name=company_name)
+        document = get_object_or_404(models.Document, company=company, company_document_id=company_document_id)
+        return document
 
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -317,31 +337,32 @@ class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
     def get(self, request, company_name, company_document_id):
         company = get_object_or_404(models.Company, name=company_name)
         document = get_object_or_404(models.Document, company=company, company_document_id=company_document_id)
-        form = forms.DocumentForm(instance=document)
-        form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
-        form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
+        form = forms.DocumentEditForm(instance=document)
+
+        company = request.user.profile.company
+        form.fields["product"].queryset = models.Product.objects.filter(company=company)
+        form.fields["category"].queryset = models.Category.objects.filter(company=company)
         return render(request, "document/document_update_form.html", {"form": form})
 
-    # def get_initial(self):
-    #     initial = super(EditDocumentView, self).get_initial()
-    #     initial["validity_start"] = self.object.validity_start.strftime("%Y-%m-%d")
-    #     return initial
-
     def post(self, request, company_name, company_document_id):
-        form = forms.DocumentForm(request.POST, request.FILES)
+        company = get_object_or_404(models.Company, name=company_name)
+        document = get_object_or_404(models.Document, company=company, company_document_id=company_document_id)
+
+        form = forms.DocumentEditForm(request.POST, request.FILES, instance=document)
 
         if form.is_valid():
             # Form contains the filename delivered by the user
-            form_file = form.cleaned_data.get("file")
+            # form_file = form.cleaned_data.get("file")
+            # print("form_file:", form_file)
 
             # Filename after saving might differ from the one uploaded
             document_new = form.save(commit=False)
-            document_old = models.Document.objects.get(id=self.object.id)
-
-            # Filename is converted to None after deletion
+            document_old = models.Document.objects.get(id=document.id)
+            #
+            # # Filename is converted to None after deletion
             data_old = document_old.__dict__.copy()
-            if self.request.FILES.get("file"):
-                document_old.file.delete()
+            # if self.request.FILES.get("file"):
+            #     document_old.file.delete()
 
             # History of changes gets saved
             document_new.save()
@@ -351,13 +372,12 @@ class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
             messages.success(self.request, "Document updated!")
 
             # Other documents might use the file with the same name
-            if document_new.file != form_file:
-                text = utils.get_filename_msg(document_new, sent_filename=form_file.name)
-                messages.info(self.request, text)
+            # if document_new.file != form_file:
+            #     text = utils.get_filename_msg(document_new, sent_filename=form_file.name)
+            #     messages.info(self.request, text)
 
-            return redirect("document_detail", document_new.id)
+            return redirect("document_detail", document_new.company.name, document_new.company_document_id)
         else:
-            print("invalid form")
             form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
             form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
             return render(request, "document/document_update_form.html", {"form": form})
@@ -408,14 +428,20 @@ class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
 #         return redirect("document_detail", document_new.id)
 
 
-class DeleteDocumentView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class DeleteDocumentView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     """Delete a document."""
     model = models.Document
     success_url = reverse_lazy("main")
     success_message = "Document deleted!"
 
     def test_func(self):
-        return self.request.user.groups.filter(name="manager").exists()
+        return utils.user_is_contributor_or_admin(self.request)
+        # return self.request.user.groups.filter(name="manager").exists()
+
+    # TODO nie pojawia się success message
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteDocumentView, self).delete(request, *args, **kwargs)
 
 
 class DocumentDetailView(LoginRequiredMixin, View):
@@ -430,6 +456,7 @@ class DocumentDetailView(LoginRequiredMixin, View):
         history_set = document.history_set.all().order_by("-changed_at")
         ctx = {
             "document": document,
+            "document_filename": os.path.basename(document.file.name),
             "history_set": history_set,
         }
         return render(request, "document/document_detail.html", ctx)

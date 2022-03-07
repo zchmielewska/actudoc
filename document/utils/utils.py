@@ -1,3 +1,4 @@
+import os
 from django.utils import timezone
 
 from document import models
@@ -84,26 +85,27 @@ def save_history(data1, data2, user):
     return None
 
 
-def get_filename_msg(document, sent_filename):
+def get_filename_msg(saved_filename, sent_filename, company_name):
     """
     Get informational message about the changes to the filename.
 
-    :param document: document object that has been created
+    :param saved_filename: string, filename save on the disk
     :param sent_filename: string, filename sent in the form
+    :param company_name: string, short name of the company
     :return: string, message
     """
-    saved_filename = document.file
     text = f"The file has been saved as {saved_filename}."
-
-    cleaned_sent_filename = sent_filename.replace(" ", "_")
-    if models.Document.objects.filter(file=cleaned_sent_filename).exists():
-        doc_same_filename = models.Document.objects.get(file=cleaned_sent_filename)
-        if doc_same_filename != document:
-            text += f" File with the name {cleaned_sent_filename} is already associated with " \
-                    f"the document #{doc_same_filename.id}."
 
     if " " in sent_filename:
         text += " Spaces have been changed to underscores."
+        sent_filename = sent_filename.replace(" ", "_")
+
+    sent_filepath = os.path.join(company_name, sent_filename)
+
+    if models.Document.objects.filter(file=sent_filepath).exists():
+        document = models.Document.objects.get(file=sent_filepath)
+        text += f" File with the name {sent_filename} is already associated with " \
+                f"the document #{document.company_document_id}."
 
     return text
 

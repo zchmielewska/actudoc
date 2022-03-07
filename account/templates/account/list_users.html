@@ -35,9 +35,7 @@
                 <th>E-mail</th>
                 <th>Role</th>
                 <th>Active</th>
-                {% if user_is_admin %}
-                    <th></th>
-                {% endif %}
+                <th></th>
             </tr>
             {% for user in users %}
                 <tr>
@@ -48,7 +46,13 @@
                     <td>{{ user.profile.role }}</td>
                     <td>{{ user.is_active }}</td>
                     {% if user_is_admin %}
-                    <td><a href="{% url "account:user_edit_by_admin" user.id %}" class="link">edit</a></td>
+                        <td><a href="{% url "account:user_edit_by_admin" user.id %}" class="link">edit</a></td>
+                    {% else %}
+                        <td>
+                            <span class="disabled tooltip">edit
+                                <span class="tooltip-text">Only admins can edit users.</span>
+                            </span>
+                        </td>
                     {% endif %}
                 </tr>
             {% endfor %}

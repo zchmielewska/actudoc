@@ -3,7 +3,8 @@
 
     <h3>Update document</h3>
     <div class="brick">
-        <form method="post" enctype="multipart/form-data">
+        <!-- <form method="post" enctype="multipart/form-data"> -->
+        <form method="post">
             {% csrf_token %}
 
             {{ form.as_p }}
