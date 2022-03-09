@@ -43,7 +43,7 @@
             <div class="profile-bar">
                 <div class="profile-content">
                     <div class="push-right">
-                        <a href="{% url "account:profile_detail" request.user.username %}" class="link">
+                        <a href="{% url "account:profile_detail" request.user.profile.company.name request.user.profile.employee_num %}" class="link">
                             <strong>
                                 {{ request.user.first_name }} {{ request.user.last_name }} ({{ request.user.profile.role }})
                             </strong>

@@ -46,7 +46,7 @@
                     <td>{{ user.profile.role }}</td>
                     <td>{{ user.is_active }}</td>
                     {% if user_is_admin %}
-                        <td><a href="{% url "account:user_edit_by_admin" user.id %}" class="link">edit</a></td>
+                        <td><a href="{% url "account:user_edit_by_admin" user.profile.company.name user.profile.employee_num %}" class="link">edit</a></td>
                     {% else %}
                         <td>
                             <span class="disabled tooltip">edit

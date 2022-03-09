@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -42,7 +44,7 @@ class Product(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["company", "company_product_id"])]
-        ordering = ["name"]
+        ordering = ["id"]
         unique_together = ("company_product_id", "company")
 
 
@@ -66,7 +68,7 @@ class Category(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["company", "company_category_id"])]
-        ordering = ["name"]
+        ordering = ["id"]
         unique_together = ("company_category_id", "company")
 
 

@@ -31,3 +31,9 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     role = models.CharField(max_length=11, choices=ROLES, default="viewer")
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
+    employee_num = models.PositiveIntegerField()
+
+    class Meta:
+        indexes = [models.Index(fields=["user", ])]
+        unique_together = ("company", "employee_num")
+

@@ -10,7 +10,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import DeleteView
 
 from document import models
 from document import forms
@@ -24,8 +24,8 @@ class MainView(LoginRequiredMixin, View):
     Shows ten newest documents in reverse-chronological order of company's documents.
     Allows searching documents using a phrase.
 
-    Access company: filtering of objects
-    Access users: all
+    Access company: filtering of objects based on request user's company
+    Access roles: all
     """
     def get(self, request):
         company = request.user.profile.company
@@ -48,12 +48,12 @@ class ManageView(LoginRequiredMixin, View):
     Manage products and categories of the company. Add, edit or delete objects.
 
     Access company: filtering of objects
-    Access users: all can access but only contributors and admins have links for edit / delete
+    Access role: all can access but only contributors and admins have active links to edit/delete
     """
     def get(self, request):
         company = self.request.user.profile.company
-        categories = models.Category.objects.filter(company=company).order_by("id")
-        products = models.Product.objects.filter(company=company).order_by("id")
+        categories = models.Category.objects.filter(company=company)
+        products = models.Product.objects.filter(company=company)
         return render(request, "document/manage.html", {"categories": categories, "products": products})
 
 
@@ -61,8 +61,10 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Form to add a new product.
 
+    Products have internal ids within company (company_product_id).
+
     Access company: posted form will take company info from user
-    Access users: contributors and admins (test_func)
+    Access roles: contributors and admins (test_func)
     """
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -75,8 +77,12 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = forms.ProductForm(request.POST)
         if form.is_valid():
             company = request.user.profile.company
-            latest_product = models.Product.objects.filter(company=company).latest("company_product_id")
-            company_product_id = latest_product.company_product_id + 1
+            try:
+                latest_product = models.Product.objects.filter(company=company).latest("company_product_id")
+                company_product_id = latest_product.company_product_id + 1
+            except models.Product.DoesNotExist:
+                company_product_id = 1
+
             name = form.cleaned_data["name"]
             model = form.cleaned_data["model"]
             models.Product.objects.create(
@@ -96,7 +102,7 @@ class EditProductView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMix
     Form to edit an existing product.
 
     Access company: url + logged in user (get + post)
-    Access users: contributores and admins (test_func)
+    Access roles: contributores and admins (test_func)
     """
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -133,7 +139,7 @@ class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     Delete a product.
 
     Access company: url + logged in user (get + post)
-    Access users: contributores and admins (test_func)
+    Access roles: contributores and admins (test_func)
     """
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -164,8 +170,8 @@ class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Form to add a new category.
 
-    Access company: posted form will take company info from user
-    Access users: contributores and admins (test_func)
+    Access company: posted form will take company info from request user
+    Access roles: contributores and admins (test_func)
     """
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -178,8 +184,13 @@ class AddCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = forms.CategoryForm(request.POST)
         if form.is_valid():
             company = request.user.profile.company
-            latest_category = models.Category.objects.filter(company=company).latest("company_category_id")
-            company_category_id = latest_category.company_category_id + 1
+
+            try:
+                latest_category = models.Category.objects.filter(company=company).latest("company_category_id")
+                company_category_id = latest_category.company_category_id + 1
+            except models.Category.DoesNotExist:
+                company_category_id = 1
+
             name = form.cleaned_data["name"]
             models.Category.objects.create(
                 company=company,
@@ -197,7 +208,7 @@ class EditCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
     Form to edit an existing category.
 
     Access company: url + logged in user (get + post)
-    Access users: contributores and admins (test_func)
+    Access roles: contributores and admins (test_func)
     """
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -234,7 +245,7 @@ class DeleteCategoryView(LoginRequiredMixin, UserPassesTestMixin, View):
     Delete a category.
 
     Access company: url + logged in user (get + post)
-    Access users: contributores and admins (test_func)
+    Access roles: contributores and admins (test_func)
     """
     def test_func(self):
         return utils.user_is_contributor_or_admin(self.request)
@@ -266,8 +277,10 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
     Add a new document.
 
     User chooses products and categories only from the ones available in their company.
+    Document has an internal id within the company (company_document_id).
+    Two documents can't have the same product, category and validity start date.
 
-    Access company: posted form will take company info from user
+    Access company: posted form will take company info from request user
     Access users: contributores and admins (test_func)
     """
     def test_func(self):
@@ -275,8 +288,9 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request):
         form = forms.DocumentAddForm()
-        form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
-        form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
+        company = request.user.profile.company
+        form.fields["product"].queryset = models.Product.objects.filter(company=company)
+        form.fields["category"].queryset = models.Category.objects.filter(company=company)
         return render(request, "document/document_form.html", {"form": form})
 
     def post(self, request):
@@ -285,40 +299,45 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
         if form.is_valid():
             cd = form.cleaned_data
             form_file = cd.get("file")
-            latest_document = models.Document.objects.filter(company=company).latest("company_document_id")
-            company_document_id = latest_document.company_document_id + 1
-            try:
-                document = models.Document.objects.create(
-                    company=request.user.profile.company,
-                    company_document_id=company_document_id,
-                    product=cd.get("product"),
-                    category=cd.get("category"),
-                    validity_start=cd.get("validity_start"),
-                    file=form_file,
-                    created_by=request.user,
-                )
-            except IntegrityError:
-                d = models.Document.objects.filter(company=company,
-                                                   product=cd.get("product"),
-                                                   category=cd.get("category"),
-                                                   validity_start=cd.get("validity_start")).first()
+
+            # Two documents can't have the same product, category and validity start date
+            d = models.Document.objects.filter(company=company, product=cd.get("product"), category=cd.get("category"),
+                                               validity_start=cd.get("validity_start")).first()
+            if d:
                 form.add_error("product", f"Document #{d.company_document_id} is already associated with this product, "
                                           f"category and validity start date.")
                 return render(request, "document/document_form.html", {"form": form})
+
+            # Documents have internal id within the company
+            try:
+                latest_document = models.Document.objects.filter(company=company).latest("company_document_id")
+                company_document_id = latest_document.company_document_id + 1
+            except models.Document.DoesNotExist:
+                company_document_id = 1
+
+            document = models.Document.objects.create(
+                company=company,
+                company_document_id=company_document_id,
+                product=cd.get("product"),
+                category=cd.get("category"),
+                validity_start=cd.get("validity_start"),
+                file=form_file,
+                created_by=request.user,
+            )
 
             # Saved filename might be different from the sent filename
             saved_filename = os.path.basename(document.file.name)
             sent_filename = form_file.name
             if saved_filename != sent_filename:
-                company_name = request.user.profile.company.name
-                text = utils.get_filename_msg(document, sent_filename=sent_filename, company_name=company_name)
+                text = utils.get_filename_msg(saved_filename=saved_filename, sent_filename=sent_filename,
+                                              company_name=company.name)
                 messages.info(request, text)
 
-            messages.success(request, "Document added!")
+            # messages.success(request, "Document added!")
             return redirect("main")
         else:
-            form.fields["product"].queryset = models.Product.objects.filter(company=request.user.profile.company)
-            form.fields["category"].queryset = models.Category.objects.filter(company=request.user.profile.company)
+            form.fields["product"].queryset = models.Product.objects.filter(company=company)
+            form.fields["category"].queryset = models.Category.objects.filter(company=company)
             return render(request, "document/document_form.html", {"form": form})
 
 

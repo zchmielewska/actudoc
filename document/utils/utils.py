@@ -1,5 +1,8 @@
 import os
+
+from django.core.files.storage import Storage
 from django.utils import timezone
+from pathlib import Path, PurePath
 
 from document import models
 
@@ -8,23 +11,24 @@ def search(phrase, company):
     """
     Search documents with phrase.
 
-    Finds all documents that contain the phrase in one or more of the following attributes:
-    id, product name, product model, category, validity start, file, created by, created at.
+    Finds all documents for the given comapny that contain the phrase in one or more of the following attributes:
+    company document id, product, category, validity start, file, created by, created at.
 
     :param phrase: string, phrase based on which the documents are filtered
     :param company: company model object
     :return: queryset
     """
     company_documents = models.Document.objects.filter(company=company)
-    d1 = company_documents.filter(id__icontains=phrase)
+    d1 = company_documents.filter(company_document_id__icontains=phrase)
     d2 = company_documents.filter(product__name__icontains=phrase)
     d3 = company_documents.filter(product__model__icontains=phrase)
     d4 = company_documents.filter(category__name__icontains=phrase)
     d5 = company_documents.filter(validity_start__icontains=phrase)
     d6 = company_documents.filter(file__icontains=phrase)
-    d7 = company_documents.filter(created_by__username__icontains=phrase)
-    d8 = company_documents.filter(created_at__icontains=phrase)
-    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8
+    d7 = company_documents.filter(created_by__first_name__icontains=phrase)
+    d8 = company_documents.filter(created_by__last_name__icontains=phrase)
+    d9 = company_documents.filter(created_at__icontains=phrase)
+    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9
     documents = all_documents.distinct().order_by("-id")
     return documents
 
@@ -85,6 +89,8 @@ def save_history(data1, data2, user):
     return None
 
 
+
+
 def get_filename_msg(saved_filename, sent_filename, company_name):
     """
     Get informational message about the changes to the filename.
@@ -96,15 +102,11 @@ def get_filename_msg(saved_filename, sent_filename, company_name):
     """
     text = f"The file has been saved as {saved_filename}."
 
-    if " " in sent_filename:
-        text += " Spaces have been changed to underscores."
-        sent_filename = sent_filename.replace(" ", "_")
-
-    sent_filepath = os.path.join(company_name, sent_filename)
-
+    valid_sent_filename = Storage().get_valid_name(sent_filename)
+    sent_filepath = company_name + "/" + valid_sent_filename
     if models.Document.objects.filter(file=sent_filepath).exists():
         document = models.Document.objects.get(file=sent_filepath)
-        text += f" File with the name {sent_filename} is already associated with " \
+        text += f" File with the name {valid_sent_filename} is already associated with " \
                 f"the document #{document.company_document_id}."
 
     return text
