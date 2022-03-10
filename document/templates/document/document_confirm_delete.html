@@ -6,7 +6,7 @@
         <form method="post">
             {% csrf_token %}
 
-            <p>Do you really want to delete the document <strong>#{{ object.company_document_id }}</strong>?</p>
+            <p>Do you really want to delete the document <strong>#{{ document.company_document_id }}</strong>?</p>
 
             <div class="vertical-center">
                 <button type="submit" class="button red-button">Delete document</button>

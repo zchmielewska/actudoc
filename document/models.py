@@ -1,5 +1,3 @@
-import os
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -16,7 +14,7 @@ class Company(models.Model):
     code = models.CharField(max_length=32, unique=True)
 
     def __str__(self):
-        return f"{self.name} ({self.full_name})"
+        return f"{self.name}"
 
     class Meta:
         indexes = [models.Index(fields=["name", ])]

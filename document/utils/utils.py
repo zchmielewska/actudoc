@@ -18,6 +18,7 @@ def search(phrase, company):
     :param company: company model object
     :return: queryset
     """
+
     company_documents = models.Document.objects.filter(company=company)
     d1 = company_documents.filter(company_document_id__icontains=phrase)
     d2 = company_documents.filter(product__name__icontains=phrase)
@@ -28,7 +29,11 @@ def search(phrase, company):
     d7 = company_documents.filter(created_by__first_name__icontains=phrase)
     d8 = company_documents.filter(created_by__last_name__icontains=phrase)
     d9 = company_documents.filter(created_at__icontains=phrase)
-    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9
+
+    phrase_without_hash = phrase.replace("#", "")
+    d10 = company_documents.filter(company_document_id=phrase_without_hash)
+
+    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9 | d10
     documents = all_documents.distinct().order_by("-id")
     return documents
 
@@ -37,7 +42,7 @@ def save_history(data1, data2, user):
     """
     Saves history of the changes for documents attributes.
 
-    Checks the following attributes: product, category, validity_start, file.
+    Checks the following attributes: product, category, validity_start.
 
     :param data1: data dictionary for old document
     :param data2: data dictionary for new document
@@ -49,7 +54,7 @@ def save_history(data1, data2, user):
     if not data1["product_id"] == data2["product_id"]:
         models.History.objects.create(
             document_id=data1["id"],
-            element="produkt",
+            element="product",
             changed_from=models.Product.objects.get(id=data1["product_id"]),
             changed_to=models.Product.objects.get(id=data2["product_id"]),
             changed_by=user,
@@ -59,7 +64,7 @@ def save_history(data1, data2, user):
     if not data1["category_id"] == data2["category_id"]:
         models.History.objects.create(
             document_id=data1["id"],
-            element="kategoria dokumentu",
+            element="document category",
             changed_from=models.Category.objects.get(id=data1["category_id"]),
             changed_to=models.Category.objects.get(id=data2["category_id"]),
             changed_by=user,
@@ -69,26 +74,14 @@ def save_history(data1, data2, user):
     if not data1["validity_start"] == data2["validity_start"]:
         models.History.objects.create(
             document_id=data1["id"],
-            element="ważny od",
+            element="valid from",
             changed_from=data1["validity_start"],
             changed_to=data2["validity_start"],
             changed_by=user,
             changed_at=now,
         )
 
-    if not data1["file"] == data2["file"]:
-        models.History.objects.create(
-            document_id=data1["id"],
-            element="plik",
-            changed_from=data1["file"],
-            changed_to=data2["file"],
-            changed_by=user,
-            changed_at=now,
-        )
-
     return None
-
-
 
 
 def get_filename_msg(saved_filename, sent_filename, company_name):
@@ -118,5 +111,5 @@ def user_is_contributor_or_admin(request):
     return user_is_contributor or user_is_admin
 
 
-def user_is_employee(request):
-    pass
+def user_is_employee(request, company_name):
+    return request.user.profile.company.name == company_name

@@ -20,8 +20,9 @@ urlpatterns = [
     path('document/add', views.AddDocumentView.as_view(), name="add_document"),
     path('document/edit/<company_name>/<company_document_id>', views.EditDocumentView.as_view(), name="edit_document"),
     # path('document/edit/<pk>', views.EditDocumentView.as_view(), name="edit_document"),
-    path('document/delete/<pk>', views.DeleteDocumentView.as_view(), name="delete_document"),
+    path('document/delete/<company_name>/<company_document_id>', views.DeleteDocumentView.as_view(), name="delete_document"),
     # path('document/<pk>', views.DocumentDetailView.as_view(), name="document_detail"),
     path('document/<company_name>/<company_document_id>', views.DocumentDetailView.as_view(), name="document_detail"),
-    path('download/<pk>', views.DownloadDocumentView.as_view(), name="download"),
+    # path('download/<pk>', views.DownloadDocumentView.as_view(), name="download"),
+    path('download/<company_name>/<company_document_id>', views.DownloadDocumentView.as_view(), name="download"),
 ]

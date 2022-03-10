@@ -65,7 +65,7 @@
 
             {% if user_is_contributor or user_is_admin %}
                 <a href="{% url "edit_document" request.user.profile.company.name document.company_document_id %}" class="button gray-button">Edit</a>
-                <a href="{% url "delete_document" document.id %}" class="button red-button">Delete</a>
+                <a href="{% url "delete_document" request.user.profile.company.name document.company_document_id %}" class="button red-button">Delete</a>
             {% endif %}
         </div>
 
