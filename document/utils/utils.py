@@ -1,8 +1,5 @@
-import os
-
 from django.core.files.storage import Storage
 from django.utils import timezone
-from pathlib import Path, PurePath
 
 from document import models
 

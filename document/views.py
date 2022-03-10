@@ -9,7 +9,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import DeleteView
 
 from document import models
 from document import forms
@@ -480,4 +479,3 @@ class DownloadDocumentView(LoginRequiredMixin, View):
                 return response
         else:
             raise Http404
-

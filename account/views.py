@@ -77,7 +77,7 @@ class RegisterView(View):
             if request.POST.get("company") == "new_company":
                 code = get_random_string(length=32)
                 company = Company.objects.create(
-                    name=request.POST.get("company_short_name"),
+                    name=request.POST.get("company_short_name").lower(),
                     full_name=request.POST.get("company_full_name"),
                     code=code,
                 )

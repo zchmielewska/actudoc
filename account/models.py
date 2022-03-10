@@ -36,4 +36,3 @@ class Profile(models.Model):
     class Meta:
         indexes = [models.Index(fields=["user", ])]
         unique_together = ("company", "employee_num")
-
