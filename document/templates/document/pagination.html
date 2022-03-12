@@ -1,0 +1,11 @@
+<div class="pagination vertical-center">
+    {% if page.has_previous %}
+        <a href="?page={{ page.previous_page_number }}"><div class="pagination-arrow">&laquo;</div></a>
+    {% endif %}
+
+    <div>Page {{ page.number }} of {{ page.paginator.num_pages }}</div>
+
+    {% if page.has_next %}
+        <a href="?page={{ page.next_page_number }}"><div class="pagination-arrow">&raquo;</div></a>
+    {% endif %}
+</div>

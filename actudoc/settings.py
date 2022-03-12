@@ -33,6 +33,8 @@ DEBUG = (os.getenv("DEBUG") == "True")
 ALLOWED_HOSTS = ['127.0.0.1', ]
 
 
+ADMINS = ((os.getenv("ADMIN_NAME"), os.getenv("ADMIN_EMAIL")), )
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,10 +63,7 @@ ROOT_URLCONF = 'actudoc.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            # os.path.join(BASE_DIR, "account", "templates", "registration"),
-            # os.path.join(BASE_DIR, "document", "templates"),
-        ],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -31,12 +32,22 @@ class MainView(LoginRequiredMixin, View):
         if phrase:
             documents = utils.search(phrase, company)
         else:
-            documents = models.Document.objects.filter(company=company).order_by("-id")[:10]
+            documents = models.Document.objects.filter(company=company)
+
+        paginator = Paginator(documents, 5)
+        page = request.GET.get("page")
+
+        try:
+            documents = paginator.page(page)
+        except PageNotAnInteger:
+            documents = paginator.page(1)
+        except EmptyPage:
+            documents = paginator.page(paginator.num_pages)
 
         ctx = {
+            "page": page,
             "documents": documents,
             "phrase": phrase,
-            "no_documents": documents.count(),
         }
         return render(request, "document/main.html", ctx)
 

@@ -15,7 +15,7 @@
     </div>
 
     {% if phrase %}
-        <h3>Found ({{ no_documents }}) document(s) for phrase <i>{{ phrase }}</i></h3>
+        <h3>Document(s) for phrase <i>{{ phrase }}</i></h3>
     {% else %}
         <h3>Latest documents</h3>
     {% endif %}
@@ -53,4 +53,6 @@
             <p>There is no document yet.</p>
         {% endif %}
     {% endfor %}
+
+    {% include "document/pagination.html" with page=documents %}
 {% endblock %}

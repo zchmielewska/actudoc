@@ -96,6 +96,7 @@ class Document(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["company", "company_document_id"])]
+        ordering = ["-id"]
         unique_together = ("company", "product", "category", "validity_start")
 
 

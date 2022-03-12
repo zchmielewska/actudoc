@@ -246,6 +246,26 @@ form > ul.errorlist {
     cursor: default;
 }
 
+/* Pagination */
+.pagination {
+  font-weight: bold;
+  vertical-align: middle;
+  margin-bottom: 12px;
+}
+
+.pagination div {
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px;
+}
+
+.pagination-arrow {
+  border: #d5d6da solid 1px;
+}
+
+.pagination-arrow:hover {
+  background-color: #d5d6da;
+}
 
 /* Other */
 .vertical-center {

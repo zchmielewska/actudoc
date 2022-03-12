@@ -28,7 +28,7 @@ def search(phrase, company):
     d9 = company_documents.filter(created_at__icontains=phrase)
 
     phrase_without_hash = phrase.replace("#", "")
-    d10 = company_documents.filter(company_document_id=phrase_without_hash)
+    d10 = company_documents.filter(company_document_id__icontains=phrase_without_hash)
 
     all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9 | d10
     documents = all_documents.distinct().order_by("-id")
