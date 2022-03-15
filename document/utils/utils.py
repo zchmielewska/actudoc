@@ -25,12 +25,14 @@ def search(phrase, company):
     d6 = company_documents.filter(file__icontains=phrase)
     d7 = company_documents.filter(created_by__first_name__icontains=phrase)
     d8 = company_documents.filter(created_by__last_name__icontains=phrase)
-    d9 = company_documents.filter(created_at__icontains=phrase)
 
     phrase_without_hash = phrase.replace("#", "")
-    d10 = company_documents.filter(company_document_id__icontains=phrase_without_hash)
+    if isinstance(phrase_without_hash, int):
+        d9 = company_documents.filter(company_document_id=phrase_without_hash)
+    else:
+        d9 = company_documents.filter(company_document_id__icontains=phrase_without_hash)
 
-    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9 | d10
+    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9
     documents = all_documents.distinct().order_by("-id")
     return documents
 

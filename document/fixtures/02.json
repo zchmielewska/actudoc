@@ -1,0 +1,109 @@
+[
+  {"model": "document.company", "pk": 1, "fields": {
+    "name": "alpha",
+    "full_name": "Alphabetical Insurance Company",
+    "code": "1234"}
+  },
+
+  {"model": "auth.User", "pk": 1, "fields": {
+    "username":  "test_user",
+    "password": "1234"}
+  },
+
+  {"model": "account.Profile", "pk": 1, "fields": {
+    "user": 1,
+    "company": 1,
+    "employee_num": 1}
+  },
+
+  {"model": "document.product", "pk": 1, "fields": {
+    "company": 1,
+    "company_product_id": 1,
+    "name": "Term Insurance",
+    "model": "TEST"}
+  },
+
+  {"model": "document.category", "pk": 1, "fields": {
+    "company": 1,
+    "company_category_id": 1,
+    "name": "Technical description"}
+  },
+
+  {"model": "document.document", "pk": 1,
+    "fields": {
+      "company": 1,
+      "company_document_id": 1,
+      "product_id": 1,
+      "category_id": 1,
+      "validity_start": "2022-01-01",
+      "file": "file1.pdf",
+      "created_by_id": 1,
+      "created_at": "2012-09-04 06:00Z"
+    }
+  },
+
+  {"model": "document.document", "pk": 2,
+    "fields": {
+      "company": 1,
+      "company_document_id": 2,
+      "product_id": 1,
+      "category_id": 1,
+      "validity_start": "2022-01-02",
+      "file": "file2.pdf",
+      "created_by_id": 1,
+      "created_at": "2012-09-04 06:00Z"
+    }
+  },
+
+  {"model": "document.document", "pk": 3,
+    "fields": {
+      "company": 1,
+      "company_document_id": 3,
+      "product_id": 1,
+      "category_id": 1,
+      "validity_start": "2022-01-03",
+      "file": "file3.pdf",
+      "created_by_id": 1,
+      "created_at": "2012-09-04 06:00Z"
+    }
+  },
+
+  {"model": "document.document", "pk": 4,
+    "fields": {
+      "company": 1,
+      "company_document_id": 4,
+      "product_id": 1,
+      "category_id": 1,
+      "validity_start": "2022-01-04",
+      "file": "file4.pdf",
+      "created_by_id": 1,
+      "created_at": "2012-09-04 06:00Z"
+    }
+  },
+
+  {"model": "document.document", "pk": 5,
+    "fields": {
+      "company": 1,
+      "company_document_id": 5,
+      "product_id": 1,
+      "category_id": 1,
+      "validity_start": "2022-01-05",
+      "file": "file5.pdf",
+      "created_by_id": 1,
+      "created_at": "2012-09-04 06:00Z"
+    }
+  },
+
+    {"model": "document.document", "pk": 6,
+    "fields": {
+      "company": 1,
+      "company_document_id": 6,
+      "product_id": 1,
+      "category_id": 1,
+      "validity_start": "2022-01-06",
+      "file": "file6.pdf",
+      "created_by_id": 1,
+      "created_at": "2012-09-04 06:00Z"
+    }
+  }
+]

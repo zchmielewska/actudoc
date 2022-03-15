@@ -4,10 +4,10 @@ from document import views
 
 urlpatterns = [
     path('', views.MainView.as_view(), name="main"),
-    path('search', views.MainView.as_view(), name="search"),
-    path('manage', views.ManageView.as_view(), name="manage"),
+    path('search/', views.MainView.as_view(), name="search"),
+    path('manage/', views.ManageView.as_view(), name="manage"),
 
-    path('product/add', views.AddProductView.as_view(), name="add_product"),
+    path('product/add/', views.AddProductView.as_view(), name="add_product"),
     path('product/edit/<company_name>/<company_product_id>', views.EditProductView.as_view(), name="edit_product"),
     path('product/delete/<company_name>/<company_product_id>', views.DeleteProductView.as_view(), name="delete_product"),
 

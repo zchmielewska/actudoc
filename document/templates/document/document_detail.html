@@ -60,7 +60,7 @@
             {% endif %}
 
             <div style="flex-grow: 2;" class="vertical-center">
-                <a href="{% url "download" document.id %}" class="button green-button" target="_blank">Download document</a>
+                <a href="{% url "download" document.company.name document.company_document_id %}" class="button green-button" target="_blank">Download document</a>
             </div>
 
             {% if user_is_contributor or user_is_admin %}

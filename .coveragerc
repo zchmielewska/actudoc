@@ -1,0 +1,26 @@
+[run]
+include =
+    ./actudoc/*
+    ./account/*
+    ./document/*
+omit =
+    ./actudoc/settings.py
+    ./actudoc/urls.py
+
+    ./account/admin.py
+    ./account/apps.py
+    ./account/forms.py
+    ./account/migrations/*
+    ./account/models.py
+    ./account/urls.py
+
+    ./document/admin.py
+    ./document/apps.py
+    ./document/contexts.py
+    ./document/forms.py
+    ./document/management/*
+    ./document/migrations/*
+    ./document/models.py
+    ./document/urls.py
+    *__init__*
+    *test*
