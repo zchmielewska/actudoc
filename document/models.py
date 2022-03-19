@@ -4,8 +4,8 @@ from django.db import models
 
 
 def validate_file_extension(value):
-    if value.file.content_type != 'application/pdf':
-        raise ValidationError(u'Only PDF files can be uploaded.')
+    if value.file.content_type != "application/pdf":
+        raise ValidationError(u"Only PDF files can be uploaded.")
 
 
 class Company(models.Model):

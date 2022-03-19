@@ -2,9 +2,10 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 
+import os
+
 from account.models import Profile
-from document.forms import DocumentAddForm
-from document.models import Category, Company, Document, Product
+from document.models import Category, Company, Document, Product, History
 
 
 class ExtendedTestCase(TestCase):
@@ -214,7 +215,7 @@ class TestEditProductViewFix01(ExtendedTestCase):
         self.assertEqual(products.first().model, "WOL")
 
 
-class TestDeleteProductView01(ExtendedTestCase):
+class TestDeleteProductViewFix01(ExtendedTestCase):
     fixtures = ["01.json"]
 
     def test_get(self):
@@ -382,63 +383,169 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
             "product": "1",
             "category": "1",
             "validity_start": "2022-01-06",
-            "file": SimpleUploadedFile("alpha/owu.pdf", b"file_content", content_type="pdf")
+            "file": SimpleUploadedFile("owu.pdf", b"file_content", content_type="application/pdf")
         }
         response = self.client.post("/document/add/", data)
-        form = DocumentAddForm(data=data)
-        print("form.is_valid(): ", form.is_valid())
-        print("form.errors ", form.errors)
-
-        # self.assertEqual(response.url, "/")
+        self.assertEqual(response.url, "/")
         documents = Document.objects.filter(company=user.profile.company)
-        # self.assertEqual(documents.count(), 4)
-        self.assertEqual(response, "")
+        self.assertEqual(documents.count(), 4)
+        document = documents.latest("id")
+        self.assertEqual(document.product.name, "Term Insurance")
+        self.assertEqual(document.file.name, user.profile.company.name + "/" + "owu.pdf")
+        document.delete()
 
-    #     document = documents.last()
-    #     self.assertEqual(document.product.name, "Produkt testowy")
-    #     self.assertEqual(document.file.name, "owu.pdf")
-    #     document.delete()
-    #
-    # def test_post_add_document_with_duplicated_filename(self):
-    #     open("media/file1.pdf", "x")
-    #     self.log_manager()
-    #     self.assertEqual(models.Document.objects.count(), 5)
-    #     data = {
-    #         "product": "1",
-    #         "category": "1",
-    #         "validity_start": "2022-01-06",
-    #         "file": SimpleUploadedFile("file1.pdf", b"file_content", content_type="pdf")
-    #     }
-    #     self.client.post("/document/add", data)
-    #     self.assertEqual(models.Document.objects.count(), 6)
-    #     document = models.Document.objects.last()
-    #     self.assertNotEqual(document.file.name, "file1.pdf")
-    #     document.delete()
-    #     os.remove("media/file1.pdf")
-    #
-    # def test_post_add_document_with_filename_with_spaces(self):
-    #     self.log_manager()
-    #     self.assertEqual(models.Document.objects.count(), 5)
-    #     data = {
-    #         "product": "1",
-    #         "category": "1",
-    #         "validity_start": "2022-01-06",
-    #         "file": SimpleUploadedFile("file 1.pdf", b"file_content", content_type="pdf")
-    #     }
-    #     self.client.post("/document/add", data)
-    #     self.assertEqual(models.Document.objects.count(), 6)
-    #     document = models.Document.objects.last()
-    #     self.assertEqual(document.file.name, "file_1.pdf")
-    #     document.delete()
-    #
-    # def test_post_add_document_with_duplicated_metadata(self):
-    #     self.log_manager()
-    #     self.assertEqual(models.Document.objects.count(), 5)
-    #     data = {
-    #         "product": "1",
-    #         "category": "1",
-    #         "validity_start": "2022-01-01",
-    #         "file": SimpleUploadedFile("file999.pdf", b"file_content", content_type="pdf")
-    #     }
-    #     self.client.post("/document/add", data)
-    #     self.assertEqual(models.Document.objects.count(), 5)
+    def test_post_add_document_with_duplicated_filename(self):
+        open("media/alpha/owu.pdf", "x")
+        user = self.log_user(pk=2)
+
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 3)
+
+        data = {
+            "product": "1",
+            "category": "1",
+            "validity_start": "2022-01-06",
+            "file": SimpleUploadedFile("owu.pdf", b"file_content", content_type="application/pdf")
+        }
+        self.client.post("/document/add/", data)
+
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 4)
+
+        document = Document.objects.latest("id")
+        self.assertNotEqual(document.file.name, user.profile.company.name + "/" + "owu.pdf")
+        document.delete()
+        os.remove("media/alpha/owu.pdf")
+
+    def test_post_add_document_with_filename_with_spaces(self):
+        user = self.log_user(pk=2)
+
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 3)
+
+        data = {
+            "product": "1",
+            "category": "1",
+            "validity_start": "2022-01-06",
+            "file": SimpleUploadedFile("o w u.pdf", b"file_content", content_type="application/pdf")
+        }
+
+        self.client.post("/document/add/", data)
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 4)
+
+        document = Document.objects.latest("id")
+        self.assertEqual(document.file.name, user.profile.company.name + "/" + "o_w_u.pdf")
+        document.delete()
+
+    def test_post_add_document_with_duplicated_metadata(self):
+        user = self.log_user(pk=2)
+
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 3)
+
+        data = {
+            "product": "1",
+            "category": "1",
+            "validity_start": "2022-01-01",
+            "file": SimpleUploadedFile("file999.pdf", b"file_content", content_type="application/pdf")
+        }
+
+        self.client.post("/document/add/", data)
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 3)
+
+
+class TestEditDocumentViewFix03(ExtendedTestCase):
+    fixtures = ["03.json"]
+
+    def test_get(self):
+        response = self.client.get(f"/document/edit/alpha/1")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/account/login?next=/document/edit/alpha/1")
+
+        self.log_user(pk=1)
+        response = self.client.get("/document/edit/alpha/1")
+        self.assertEqual(response.status_code, 403)
+
+        self.log_user(pk=2)
+        response = self.client.get("/document/edit/alpha/1")
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        user = self.log_user(pk=2)
+
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 3)
+
+        document = documents.get(pk=1)
+        self.assertEqual(document.product.name, "Term Insurance")
+        self.assertEqual(History.objects.count(), 0)
+
+    def test_post_edit_document_change_product(self):
+        user = self.log_user(pk=2)
+        document = Document.objects.get(pk=1)
+        data = {
+            "product": "2",
+            "category": document.category.id,
+            "validity_start": document.validity_start,
+            "file": document.file.name
+        }
+        response = self.client.post("/document/edit/alpha/1", data)
+        self.assertEqual(response.url, "/document/alpha/1")
+
+        documents = Document.objects.filter(company=user.profile.company)
+        self.assertEqual(documents.count(), 3)
+        document = Document.objects.get(pk=1)
+        self.assertEqual(document.product.name, "Whole of Life")
+
+        histories = History.objects.all()
+        self.assertEqual(histories.count(), 1)
+        history = histories.first()
+        self.assertEqual(history.document_id, 1)
+        self.assertEqual(history.element, "product")
+        self.assertEqual(history.changed_from, str(Product.objects.get(pk=1)))
+        self.assertEqual(history.changed_to, str(Product.objects.get(pk=2)))
+        document.delete()
+
+    def test_post_edit_document_change_category(self):
+        # user = self.log_user(pk=2)
+        # document = Document.objects.get(pk=2)
+        # data = {
+        #     "product": document.product.id,
+        #     "category": "2",
+        #     "validity_start": document.validity_start,
+        #     "file": document.file.name
+        # }
+        # response = self.client.post("/document/edit/5", data)
+        # self.assertEqual(response.url, "/document/5")
+        #
+        # documents = models.Document.objects
+        # self.assertEqual(documents.count(), 12)
+        # document = documents.get(pk=5)
+        # self.assertEqual(document.category.name, "SWU")
+        #
+        # histories = models.History.objects
+        # self.assertEqual(histories.count(), 1)
+        # history = histories.first()
+        # self.assertEqual(history.document_id, 5)
+        # self.assertEqual(history.element, "kategoria dokumentu")
+        # self.assertEqual(history.changed_from, "OWU")
+        # self.assertEqual(history.changed_to, "SWU")
+        # document.delete()
+
+    def test_post_edit_without_changes(self):
+        user = self.log_user(pk=2)
+        document_before_edit = Document.objects.get(pk=1)
+        data = {
+            "product": document_before_edit.product.id,
+            "category": document_before_edit.category.id,
+            "validity_start": document_before_edit.validity_start,
+            "file": document_before_edit.file.name
+        }
+        response = self.client.post("/document/edit/alpha/1", data)
+        self.assertEqual(response.url, "/document/alpha/1")
+        document_after_edit = Document.objects.get(pk=1)
+        self.assertEqual(document_before_edit, document_after_edit)
+        self.assertEqual(History.objects.count(), 0)
+        document_after_edit.delete()

@@ -389,11 +389,14 @@ class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
             cd = form.cleaned_data
 
             # Two documents can't have the same product, category and validity start date
-            d = models.Document.objects.filter(company=company, product=cd.get("product"), category=cd.get("category"),
-                                               validity_start=cd.get("validity_start")).first()
-            if d:
-                form.add_error("product", f"Document #{d.company_document_id} is already associated with this product, "
-                                          f"category and validity start date.")
+            duplicated_document = models.Document.objects.filter(company=company,
+                                                                 product=cd.get("product"),
+                                                                 category=cd.get("category"),
+                                                                 validity_start=cd.get("validity_start")
+                                                                 ).exclude(id=document.id).first()
+            if duplicated_document:
+                form.add_error("product", f"Document #{duplicated_document.company_document_id} is already associated "
+                                          f"with this product, category and validity start date.")
                 form.fields["product"].queryset = models.Product.objects.filter(company=company)
                 form.fields["category"].queryset = models.Category.objects.filter(company=company)
                 return render(request, "document/document_form.html", {"form": form})
