@@ -342,7 +342,7 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
                                               company_name=company.name)
                 messages.info(request, text)
 
-            # messages.success(request, "Document added!")
+            messages.success(request, "Document added!")
             return redirect("main")
         else:
             form.fields["product"].queryset = models.Product.objects.filter(company=company)

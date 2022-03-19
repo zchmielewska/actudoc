@@ -54,5 +54,9 @@
         {% endif %}
     {% endfor %}
 
-    {% include "document/pagination.html" with page=documents %}
+    {% if documents %}
+        {% include "document/pagination.html" with page=documents %}
+    {% endif %}
+
+
 {% endblock %}
