@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 
+import datetime
 import os
 
 from account.models import Profile
@@ -509,30 +510,36 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         document.delete()
 
     def test_post_edit_document_change_category(self):
-        # user = self.log_user(pk=2)
-        # document = Document.objects.get(pk=2)
-        # data = {
-        #     "product": document.product.id,
-        #     "category": "2",
-        #     "validity_start": document.validity_start,
-        #     "file": document.file.name
-        # }
-        # response = self.client.post("/document/edit/5", data)
-        # self.assertEqual(response.url, "/document/5")
-        #
-        # documents = models.Document.objects
-        # self.assertEqual(documents.count(), 12)
-        # document = documents.get(pk=5)
-        # self.assertEqual(document.category.name, "SWU")
-        #
-        # histories = models.History.objects
-        # self.assertEqual(histories.count(), 1)
-        # history = histories.first()
-        # self.assertEqual(history.document_id, 5)
-        # self.assertEqual(history.element, "kategoria dokumentu")
-        # self.assertEqual(history.changed_from, "OWU")
-        # self.assertEqual(history.changed_to, "SWU")
-        # document.delete()
+        user = self.log_user(pk=2)
+        documents = Document.objects
+        self.assertEqual(documents.count(), 3)
+
+        document = Document.objects.get(pk=2)
+        self.assertEqual(document.category.name, "Technical description")
+
+        data = {
+            "product": document.product.id,
+            "category": "2",
+            "validity_start": document.validity_start,
+            "file": document.file.name
+        }
+        response = self.client.post("/document/edit/alpha/2", data)
+        self.assertEqual(response.url, "/document/alpha/2")
+
+        documents = Document.objects
+        self.assertEqual(documents.count(), 3)
+
+        document = documents.get(pk=2)
+        self.assertEqual(document.category.name, "Terms")
+
+        histories = History.objects
+        self.assertEqual(histories.count(), 1)
+        history = histories.first()
+        self.assertEqual(history.document_id, 2)
+        self.assertEqual(history.element, "document category")
+        self.assertEqual(history.changed_from, "Technical description")
+        self.assertEqual(history.changed_to, "Terms")
+        document.delete()
 
     def test_post_edit_without_changes(self):
         user = self.log_user(pk=2)
@@ -549,3 +556,85 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         self.assertEqual(document_before_edit, document_after_edit)
         self.assertEqual(History.objects.count(), 0)
         document_after_edit.delete()
+
+    def test_post_edit_document_change_valid_from(self):
+        user = self.log_user(pk=2)
+
+        documents = Document.objects
+        self.assertEqual(documents.count(), 3)
+
+        document = Document.objects.get(pk=3)
+        data = {
+            "product": document.product.id,
+            "category": document.category.id,
+            "validity_start": "1999-12-12",
+            "file": document.file.name
+        }
+        response = self.client.post("/document/edit/alpha/3", data)
+        self.assertEqual(response.url, "/document/alpha/3")
+
+        documents = Document.objects
+        self.assertEqual(documents.count(), 3)
+
+        document = Document.objects.get(pk=3)
+        self.assertEqual(document.validity_start, datetime.date(1999, 12, 12))
+
+        histories = History.objects
+        self.assertEqual(histories.count(), 1)
+        history = histories.first()
+        self.assertEqual(history.document_id, 3)
+        self.assertEqual(history.element, "valid from")
+        self.assertEqual(history.changed_from, "2022-01-03")
+        self.assertEqual(history.changed_to, "1999-12-12")
+        document.delete()
+
+
+class TestDeleteDocumentViewFix01(ExtendedTestCase):
+    fixtures = ["01.json"]
+
+    def test_get(self):
+        response = self.client.get("/document/delete/alpha/1")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/account/login?next=/document/delete/alpha/1")
+
+        self.log_user(pk=1)
+        response = self.client.get("/document/delete/alpha/1")
+        self.assertEqual(response.status_code, 403)
+
+        self.log_user(pk=2)
+        response = self.client.get("/document/delete/alpha/1")
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        user = self.log_user(pk=2)
+        self.assertEqual(Document.objects.filter(company=user.profile.company).count(), 3)
+        response = self.client.post("/document/delete/alpha/1")
+        self.assertEqual(response.url, "/")
+        self.assertEqual(Document.objects.filter(company=user.profile.company).count(), 2)
+
+
+class TestDocumentDetailViewFix01(ExtendedTestCase):
+    fixtures = ["01.json"]
+
+    def test_get(self):
+        response = self.client.get("/document/alpha/1")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/account/login?next=/document/alpha/1")
+
+        self.log_user(pk=1)
+        response = self.client.get("/document/alpha/1")
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDownloadDocumentViewFix01(ExtendedTestCase):
+    fixtures = ["01.json"]
+
+    def test_get(self):
+        response = self.client.get("/download/alpha/1")
+        self.assertEqual(response.status_code, 302)
+
+        user = self.log_user(pk=1)
+        open("media/alpha/fileA.pdf", "x")
+        response = self.client.get("/download/alpha/1")
+        self.assertEqual(response.status_code, 200)
+        os.remove("media/alpha/fileA.pdf")

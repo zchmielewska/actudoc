@@ -484,10 +484,11 @@ class DownloadDocumentView(LoginRequiredMixin, View):
 
         company = get_object_or_404(models.Company, name=company_name)
         document = get_object_or_404(models.Document, company=company, company_document_id=company_document_id)
+
         filepath = os.path.join(settings.MEDIA_ROOT, document.file.name)
         if os.path.exists(filepath):
             with open(filepath, "rb") as fh:
-                mime_type, _ = mimetypes.guess_type(filepath)
+                mime_type = "application/pdf"
                 response = HttpResponse(fh.read(), content_type=mime_type)
                 response["Content-Disposition"] = "inline; filename=" + os.path.basename(filepath)
                 return response
