@@ -108,6 +108,23 @@ class RegisterView(View):
         return render(request, "account/register.html", {"form": form})
 
 
+class ProfileDetailView(LoginRequiredMixin, View):
+    """
+    View to see the details of a profile.
+
+    Access company: check if company from url is the same as company of request user
+    Access roles: all
+    """
+    def get(self, request, company_name, employee_num):
+        company = get_object_or_404(Company, name=company_name)
+        if request.user.profile.company != company:
+            raise PermissionDenied
+
+        profile = get_object_or_404(Profile, company=company, employee_num=employee_num)
+        user = profile.user
+        return render(request, "account/profile_detail.html", {"user": user})
+
+
 class EditProfileView(LoginRequiredMixin, View):
     """
     View to edit own profile: first name, last name and e-mail address.
@@ -130,23 +147,6 @@ class EditProfileView(LoginRequiredMixin, View):
                                         "employee_num": request.user.profile.employee_num
                                     }))
         return render(request, "account/edit.html", {"user_form": user_form})
-
-
-class ProfileDetailView(LoginRequiredMixin, View):
-    """
-    View to see the details of a profile.
-
-    Access company: check if company from url is the same as company of request user
-    Access roles: all
-    """
-    def get(self, request, company_name, employee_num):
-        company = get_object_or_404(Company, name=company_name)
-        if request.user.profile.company != company:
-            raise PermissionDenied
-
-        profile = get_object_or_404(Profile, company=company, employee_num=employee_num)
-        user = profile.user
-        return render(request, "account/profile_detail.html", {"user": user})
 
 
 class UserListView(LoginRequiredMixin, View):

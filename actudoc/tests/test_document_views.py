@@ -1,9 +1,9 @@
+import datetime
+import os
+
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
-
-import datetime
-import os
 
 from account.models import Profile
 from document.models import Category, Company, Document, Product, History

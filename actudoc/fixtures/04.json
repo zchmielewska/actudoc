@@ -1,0 +1,7 @@
+[
+  {"model": "document.company", "pk": 1, "fields": {
+    "name": "alpha",
+    "full_name": "Alphabetical Insurance Company",
+    "code": "1234"}
+  }
+]

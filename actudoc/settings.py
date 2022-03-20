@@ -139,6 +139,11 @@ LOGIN_REDIRECT_URL = "main"
 LOGIN_URL = "/account/login"
 LOGOUT_URL = "/account/logout"
 
+
+FIXTURE_DIRS = (
+   os.path.join(BASE_DIR, "actudoc", "fixtures"),
+)
+
 # E-mail backend
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
