@@ -146,42 +146,60 @@ class TestAddProductView(ExtendedTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_post(self):
-        self.create_and_log_contributor()
-        response = self.client.get("/product/add/")
-        self.assertEqual(response.status_code, 200)
+        # There are no products at the beginning
+        products = Product.objects.all()
+        self.assertEqual(products.count(), 0)
 
-        num_products = Product.objects.count()
-        self.assertEqual(num_products, 0)
-
-        response = self.client.get("/manage/")
-        products = response.context.get("products")
-        self.assertEqual(len(products), 0)
-
+    def test_post_by_viewer(self):
         data = {
             "name": "Term Life Insurance",
             "model": "TERM02"
         }
+
+        self.create_and_log_viewer()
         response = self.client.post("/product/add/", data)
+        self.assertEqual(response.status_code, 403)
+
+    def test_post_by_contributor(self):
+        data = {
+            "name": "Term Life Insurance",
+            "model": "TERM02"
+        }
+
+        self.create_and_log_contributor()
+        response = self.client.post("/product/add/", data)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/manage/")
 
-        num_products = Product.objects.count()
-        self.assertEqual(num_products, 1)
+        products = Product.objects.all()
+        self.assertEqual(products.count(), 1)
         self.assertEqual(Product.objects.first().name, "Term Life Insurance")
 
         response = self.client.get("/manage/")
         products = response.context.get("products")
         self.assertEqual(len(products), 1)
 
+    def test_post_invalid_data(self):
+        data = {
+            "model": "TERM02"
+        }
+
+        self.create_and_log_contributor()
+        response = self.client.post("/product/add/", data)
+        products = Product.objects.all()
+        self.assertEqual(products.count(), 0)
+
 
 class TestEditProductViewFix01(ExtendedTestCase):
     fixtures = ["01.json"]
 
     def test_get(self):
+        # Login required
         response = self.client.get("/product/edit/alpha/1")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/account/login?next=/product/edit/alpha/1")
 
-        # Viewers can't edit products
+        # Viewers can not edit products
         self.log_user(pk=1)
         response = self.client.get("/product/edit/alpha/1")
         self.assertEqual(response.status_code, 403)
@@ -191,12 +209,22 @@ class TestEditProductViewFix01(ExtendedTestCase):
         response = self.client.get("/product/edit/alpha/1")
         self.assertEqual(response.status_code, 200)
 
-        # Access only for employees
+        # Only employees can edit products
         self.log_user(pk=3)
         response = self.client.get("/product/edit/alpha/1")
         self.assertEqual(response.status_code, 403)
 
     def test_post(self):
+        data = {
+            "name": "Whole Of Life",
+            "model": "WOL"
+        }
+
+        # Viewers can not edit products
+        self.log_user(pk=1)
+        response = self.client.post("/product/edit/alpha/1", data)
+        self.assertEqual(response.status_code, 403)
+
         # Contributors and admins can edit products
         user = self.log_user(pk=2)
 
@@ -204,16 +232,17 @@ class TestEditProductViewFix01(ExtendedTestCase):
         self.assertEqual(products.count(), 1)
         self.assertEqual(products.first().model, "TERM02")
 
-        data = {
-            "name": "Whole Of Life",
-            "model": "WOL"
-        }
         response = self.client.post("/product/edit/alpha/1", data)
         self.assertEqual(response.url, "/manage/")
 
         products = Product.objects.filter(company=user.profile.company)
         self.assertEqual(products.count(), 1)
         self.assertEqual(products.first().model, "WOL")
+
+        # Access only for employees
+        self.log_user(pk=3)
+        response = self.client.post("/product/edit/alpha/1", data)
+        self.assertEqual(response.status_code, 403)
 
 
 class TestDeleteProductViewFix01(ExtendedTestCase):
@@ -240,6 +269,12 @@ class TestDeleteProductViewFix01(ExtendedTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_post(self):
+        # Viewers can not delete products
+        self.log_user(pk=1)
+        response = self.client.post("/product/delete/alpha/1")
+        self.assertEqual(response.status_code, 403)
+
+        # Contributors can delete products
         user = self.log_user(pk=2)
         products = Product.objects.filter(company=user.profile.company)
         self.assertEqual(products.count(), 1)
@@ -251,9 +286,15 @@ class TestDeleteProductViewFix01(ExtendedTestCase):
         products = Product.objects.filter(company=user.profile.company)
         self.assertEqual(products.count(), 0)
 
+        # Only employees can access
+        self.log_user(pk=3)
+        response = self.client.post("/product/delete/alpha/1")
+        self.assertEqual(response.status_code, 403)
+
 
 class TestAddCategoryView(ExtendedTestCase):
     def test_get(self):
+        # Login required
         response = self.client.get("/category/add/")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/account/login?next=/category/add/")

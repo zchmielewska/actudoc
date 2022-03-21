@@ -1,0 +1,52 @@
+[
+  {"model": "document.company", "pk": 1, "fields": {
+    "name": "alpha",
+    "full_name": "Alphabetical Insurance Company",
+    "code": "1234"}
+  },
+
+  {"model": "document.company", "pk": 2, "fields": {
+    "name": "beta",
+    "full_name": "Betabetical Insurance Company",
+    "code": "5678"}
+  },
+
+  {"model": "auth.User", "pk": 1, "fields": {
+    "username":  "test_viewer",
+    "password": "1234",
+    "email": "test_viewer@example.com"}
+  },
+
+  {"model": "account.Profile", "pk": 1, "fields": {
+    "user": 1,
+    "company": 1,
+    "employee_num": 1,
+    "role":  "admin"}
+  },
+
+  {"model": "auth.User", "pk": 2, "fields": {
+    "username":  "test_contributor",
+    "password": "1234",
+    "email": "test_contributor@example.com"}
+  },
+
+  {"model": "account.Profile", "pk": 2, "fields": {
+    "user": 2,
+    "company": 1,
+    "employee_num": 2,
+    "role": "contributor"}
+  },
+
+  {"model": "auth.User", "pk": 3, "fields": {
+    "username":  "test_contributor_beta",
+    "password": "1234",
+    "email": "test_contributor_beta@example.com"}
+  },
+
+  {"model": "account.Profile", "pk": 3, "fields": {
+    "user": 3,
+    "company": 2,
+    "employee_num": 1,
+    "role": "contributor"}
+  }
+]

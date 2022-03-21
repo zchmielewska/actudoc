@@ -156,7 +156,6 @@ class UserListView(LoginRequiredMixin, View):
     Access company: lists data for company of request user
     Access roles: all, but edit links are disabled for non-admins in template
     """
-
     def get(self, request):
         company = request.user.profile.company
         profiles = Profile.objects.filter(company=company)
