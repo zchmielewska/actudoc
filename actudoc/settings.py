@@ -92,6 +92,8 @@ if DEVELOPMENT_MODE is True:
         }
     }
 else:
+    if os.getenv("DATABASE_URL", None) is None:
+        raise Exception("DATABASE_URL environment variable not defined")
     DATABASES = {
         'default': {
             'HOST': 'localhost',
