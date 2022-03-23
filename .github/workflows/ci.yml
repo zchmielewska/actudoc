@@ -26,6 +26,7 @@ jobs:
     env:
       DEBUG: True
       SECRET_KEY: 'eflx3hv4b7x5-2f1##fbulvw1dhve(+frl(_*gmuh8##@m-na7'
+      ALLOWED_HOSTS: '127.0.0.1'
       DATABASE_NAME: 'github_actions'
       DATABASE_USER: 'postgres'
       DATABASE_PASSWORD: 'postgres'
