@@ -24,16 +24,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k*c77d(+98s#4chszz134f%kn5-)z9vt)u56)ym3^)j(qol=6m'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv("DEBUG") == "True")
 
-ALLOWED_HOSTS = ['127.0.0.1', ]
-
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 ADMINS = ((os.getenv("ADMIN_NAME"), os.getenv("ADMIN_EMAIL")), )
+
 
 # Application definition
 
@@ -84,13 +84,19 @@ WSGI_APPLICATION = 'actudoc.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# if DEBUG:
 
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'NAME': 'actudoc',
+#             'USER': os.getenv("ADMIN_NAME"),
+#             'PASSWORD': os.getenv("ADMIN_NAME"),
+#             'HOST': 'localhost',
+#             'PORT': '',
+#         }
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -124,8 +130,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
