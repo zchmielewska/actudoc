@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv("DEBUG") == "True")
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 ADMINS = ((os.getenv("ADMIN_NAME"), os.getenv("ADMIN_EMAIL")), )
 
@@ -94,6 +94,19 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT"),
     }
 }
+
+# DB configuration used for github workflow
+if os.environ.get('GITHUB_WORKFLOW'):
+    DATABASES = {
+        'default': {
+           'ENGINE': 'django.db.backends.postgresql_psycopg2',
+           'NAME': 'github_actions',
+           'USER': "postgres",
+           'PASSWORD': "postgres",
+           'HOST': 'localhost',
+           'PORT': 5432,
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
