@@ -71,7 +71,7 @@ class Category(models.Model):
 
 
 def document_path(instance, filename):
-    return f"{instance.company.name}/{filename}"
+    return f"{instance.company.name}/{instance.company_document_id}/{filename}"
 
 
 class Document(models.Model):

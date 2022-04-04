@@ -31,7 +31,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = (os.getenv("DEBUG") == "True")
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "127.0.0.1,localhost").split(",")
+if os.getenv("CSRF_TRUSTED_ORIGINS"):
+    CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
 ADMINS = ((os.getenv("ADMIN_NAME"), os.getenv("ADMIN_EMAIL")), )
 
