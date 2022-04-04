@@ -429,15 +429,17 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
         }
         response = self.client.post("/document/add/", data)
         self.assertEqual(response.url, "/")
+
         documents = Document.objects.filter(company=user.profile.company)
         self.assertEqual(documents.count(), 4)
         document = documents.latest("id")
         self.assertEqual(document.product.name, "Term Insurance")
-        self.assertEqual(document.file.name, user.profile.company.name + "/" + "owu.pdf")
+        self.assertEqual(document.file.name, user.profile.company.name + "/" + str(document.company_document_id) + "/" +
+                         "owu.pdf")
         document.delete()
 
     def test_post_add_document_with_duplicated_filename(self):
-        open("media/alpha/owu.pdf", "x")
+        open("media/alpha/4/owu.pdf", "x")
         user = self.log_user(pk=2)
 
         documents = Document.objects.filter(company=user.profile.company)
@@ -455,9 +457,10 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
         self.assertEqual(documents.count(), 4)
 
         document = Document.objects.latest("id")
-        self.assertNotEqual(document.file.name, user.profile.company.name + "/" + "owu.pdf")
+        self.assertNotEqual(document.file.name, user.profile.company.name + "/" + str(document.company_document_id) + "/" +
+                            "owu.pdf")
         document.delete()
-        os.remove("media/alpha/owu.pdf")
+        os.remove("media/alpha/4/owu.pdf")
 
     def test_post_add_document_with_filename_with_spaces(self):
         user = self.log_user(pk=2)
@@ -477,7 +480,8 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
         self.assertEqual(documents.count(), 4)
 
         document = Document.objects.latest("id")
-        self.assertEqual(document.file.name, user.profile.company.name + "/" + "o_w_u.pdf")
+        self.assertEqual(document.file.name, user.profile.company.name + "/" + str(document.company_document_id) + "/" +
+                         "o_w_u.pdf")
         document.delete()
 
     def test_post_add_document_with_duplicated_metadata(self):
