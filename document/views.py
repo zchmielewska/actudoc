@@ -34,7 +34,7 @@ class MainView(LoginRequiredMixin, View):
         else:
             documents = models.Document.objects.filter(company=company)
 
-        paginator = Paginator(documents, 5)
+        paginator = Paginator(documents, 16)
         page = request.GET.get("page")
 
         try:
@@ -331,6 +331,8 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
                 category=cd.get("category"),
                 validity_start=cd.get("validity_start"),
                 file=form_file,
+                title=cd.get("title"),
+                description=cd.get("description"),
                 created_by=request.user,
             )
 

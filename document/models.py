@@ -81,6 +81,8 @@ class Document(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="document category")
     validity_start = models.DateField(verbose_name="valid from")
     file = models.FileField(upload_to=document_path, validators=[validate_file_extension])
+    title = models.CharField(max_length=128)
+    description = models.TextField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="create_user")
     created_at = models.DateTimeField(auto_now_add=True)
 
