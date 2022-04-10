@@ -32,6 +32,37 @@ class ExtendedTestCase(TestCase):
         self.client.force_login(user)
         return user
 
+    def create_product(self, company):
+        product = Product.objects.create(
+            company=company,
+            company_product_id=1,
+            name="Term Life Insurance",
+            model="TERM02"
+        )
+        return product
+
+    def create_category(self, company):
+        category = Category.objects.create(
+            company=company,
+            company_category_id=1,
+            name="Technical description"
+        )
+        return category
+
+    def create_documents(self, user, product, category, n=10):
+        for i in range(n):
+            Document.objects.create(
+                company=user.profile.company,
+                company_document_id=i,
+                product=product,
+                category=category,
+                validity_start=f"2022-01-0{i+1}" if i < 9 else f"2022-01-{i+1}",
+                file=f"{i}.pdf",
+                title="My document",
+                created_by=user
+            )
+        return None
+
 
 class TestMainView(ExtendedTestCase):
     def test_get(self):
@@ -40,13 +71,30 @@ class TestMainView(ExtendedTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/account/login?next=/")
 
-        self.create_and_log_viewer()
+        user = self.create_and_log_viewer()
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
 
-        # There is no phrase or documents
+        # There is no phrase or documents at the beginning
         self.assertEqual(response.context.get("phrase"), None)
         self.assertEqual(len(response.context.get("documents")), 0)
+
+        # There are 16 documents per page
+        product = self.create_product(company=user.profile.company)
+        category = self.create_category(company=user.profile.company)
+        self.create_documents(user=user, product=product, category=category, n=20)
+
+        response = self.client.get("/")
+        self.assertEqual(len(response.context.get("documents")), 16)
+
+        response = self.client.get("/?page=2")
+        self.assertEqual(len(response.context.get("documents")), 4)
+
+        response = self.client.get("/?page=2.5")
+        self.assertEqual(len(response.context.get("documents")), 16)
+
+        response = self.client.get("/?page=3")
+        self.assertEqual(len(response.context.get("documents")), 4)
 
 
 class TestMainViewFix01(ExtendedTestCase):
@@ -90,6 +138,10 @@ class TestMainViewFix01(ExtendedTestCase):
 
         # List all documents for the given product
         response = self.client.get("/search/?product=1")
+        self.assertEqual(len(response.context.get("documents")), 3)
+
+        # List all documents for the given category
+        response = self.client.get("/search/?category=1")
         self.assertEqual(len(response.context.get("documents")), 3)
 
 
@@ -162,13 +214,14 @@ class TestAddProductView(ExtendedTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_post_by_contributor(self):
-        data = {
+        self.create_and_log_contributor()
+
+        # Create first product
+        data1 = {
             "name": "Term Life Insurance",
             "model": "TERM02"
         }
-
-        self.create_and_log_contributor()
-        response = self.client.post("/product/add/", data)
+        response = self.client.post("/product/add/", data1)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/manage/")
 
@@ -179,6 +232,24 @@ class TestAddProductView(ExtendedTestCase):
         response = self.client.get("/manage/")
         products = response.context.get("products")
         self.assertEqual(len(products), 1)
+
+        # Create second product
+        data2 = {
+            "name": "Annuity",
+            "model": "ANN"
+        }
+        response = self.client.post("/product/add/", data2)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/manage/")
+
+        products = Product.objects.all()
+        self.assertEqual(products.count(), 2)
+        self.assertEqual(Product.objects.last().name, "Annuity")
+        self.assertEqual(Product.objects.last().company_product_id, 2)
+
+        response = self.client.get("/manage/")
+        products = response.context.get("products")
+        self.assertEqual(len(products), 2)
 
     def test_post_invalid_data(self):
         data = {
@@ -244,6 +315,26 @@ class TestEditProductViewFix01(ExtendedTestCase):
         self.log_user(pk=3)
         response = self.client.post("/product/edit/alpha/1", data)
         self.assertEqual(response.status_code, 403)
+
+    def test_post_invalid_data(self):
+        data = {
+            "model": "WOL",
+        }
+
+        # Contributors and admins can edit products
+        user = self.log_user(pk=2)
+
+        # Before edit
+        products = Product.objects.filter(company=user.profile.company)
+        self.assertEqual(products.count(), 1)
+        self.assertEqual(products.first().model, "TERM02")
+
+        response = self.client.post("/product/edit/alpha/1", data)
+
+        # After edit - nothing changed
+        products = Product.objects.filter(company=user.profile.company)
+        self.assertEqual(products.count(), 1)
+        self.assertEqual(products.first().model, "TERM02")
 
 
 class TestDeleteProductViewFix01(ExtendedTestCase):

@@ -39,16 +39,17 @@ class MainView(LoginRequiredMixin, View):
         company_product_id = request.GET.get("product")
         product = None
         if company_product_id:
-            product = models.Product.objects.get(company=company, company_product_id=company_product_id)
+            product = get_object_or_404(models.Product, company=company, company_product_id=company_product_id)
             documents = documents.filter(product=product)
 
         # User can search documents by category
         company_category_id = request.GET.get("category")
         category = None
         if company_category_id:
-            category = models.Category.objects.get(company=company, company_category_id=company_category_id)
+            category = get_object_or_404(models.Category, company=company, company_category_id=company_category_id)
             documents = documents.filter(category=category)
 
+        # Documents are split by pages
         paginator = Paginator(documents, 16)
         page = request.GET.get("page")
 
