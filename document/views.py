@@ -28,11 +28,26 @@ class MainView(LoginRequiredMixin, View):
     """
     def get(self, request):
         company = request.user.profile.company
+        documents = models.Document.objects.filter(company=company)
+
+        # User can search documents with a phrase
         phrase = request.GET.get("phrase")
         if phrase:
             documents = utils.search(phrase, company)
-        else:
-            documents = models.Document.objects.filter(company=company)
+
+        # User can search documents by product
+        company_product_id = request.GET.get("product")
+        product = None
+        if company_product_id:
+            product = models.Product.objects.get(company=company, company_product_id=company_product_id)
+            documents = documents.filter(product=product)
+
+        # User can search documents by category
+        company_category_id = request.GET.get("category")
+        category = None
+        if company_category_id:
+            category = models.Category.objects.get(company=company, company_category_id=company_category_id)
+            documents = documents.filter(category=category)
 
         paginator = Paginator(documents, 16)
         page = request.GET.get("page")
@@ -48,6 +63,8 @@ class MainView(LoginRequiredMixin, View):
             "page": page,
             "documents": documents,
             "phrase": phrase,
+            "product": product,
+            "category": category,
         }
         return render(request, "document/main.html", ctx)
 
