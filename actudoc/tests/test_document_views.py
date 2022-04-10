@@ -88,6 +88,10 @@ class TestMainViewFix01(ExtendedTestCase):
         self.assertEqual(response.context.get("phrase"), "non existing")
         self.assertEqual(len(response.context.get("documents")), 0)
 
+        # List all documents for the given product
+        response = self.client.get("/search/?product=1")
+        self.assertEqual(len(response.context.get("documents")), 3)
+
 
 class TestMainViewFix02(ExtendedTestCase):
     fixtures = ["02.json"]
@@ -95,12 +99,9 @@ class TestMainViewFix02(ExtendedTestCase):
     def test_get(self):
         self.log_user(pk=1)
 
-        # Users sees 5 documents per page (or less at the last page)
+        # Users sees 16 documents per page (or less at the last page)
         response = self.client.get("/")
-        self.assertEqual(len(response.context.get("documents")), 5)
-
-        response = self.client.get("/?page=2")
-        self.assertEqual(len(response.context.get("documents")), 1)
+        self.assertEqual(len(response.context.get("documents")), 6)
 
 
 class TestManageView(ExtendedTestCase):
@@ -425,7 +426,8 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
             "product": "1",
             "category": "1",
             "validity_start": "2022-01-06",
-            "file": SimpleUploadedFile("owu.pdf", b"file_content", content_type="application/pdf")
+            "file": SimpleUploadedFile("owu.pdf", b"file_content", content_type="application/pdf"),
+            "title": "My document",
         }
         response = self.client.post("/document/add/", data)
         self.assertEqual(response.url, "/")
@@ -449,7 +451,8 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
             "product": "1",
             "category": "1",
             "validity_start": "2022-01-06",
-            "file": SimpleUploadedFile("owu.pdf", b"file_content", content_type="application/pdf")
+            "file": SimpleUploadedFile("owu.pdf", b"file_content", content_type="application/pdf"),
+            "title": "My title",
         }
         self.client.post("/document/add/", data)
 
@@ -472,7 +475,8 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
             "product": "1",
             "category": "1",
             "validity_start": "2022-01-06",
-            "file": SimpleUploadedFile("o w u.pdf", b"file_content", content_type="application/pdf")
+            "file": SimpleUploadedFile("o w u.pdf", b"file_content", content_type="application/pdf"),
+            "title": "My title",
         }
 
         self.client.post("/document/add/", data)
@@ -494,7 +498,8 @@ class TestAddDocumentViewFix01(ExtendedTestCase):
             "product": "1",
             "category": "1",
             "validity_start": "2022-01-01",
-            "file": SimpleUploadedFile("file999.pdf", b"file_content", content_type="application/pdf")
+            "file": SimpleUploadedFile("file999.pdf", b"file_content", content_type="application/pdf"),
+            "title": "My title",
         }
 
         self.client.post("/document/add/", data)
@@ -532,6 +537,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         user = self.log_user(pk=2)
         document = Document.objects.get(pk=1)
         data = {
+            "title": document.title,
             "product": "2",
             "category": document.category.id,
             "validity_start": document.validity_start,
@@ -563,6 +569,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         self.assertEqual(document.category.name, "Technical description")
 
         data = {
+            "title": document.title,
             "product": document.product.id,
             "category": "2",
             "validity_start": document.validity_start,
@@ -590,6 +597,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         user = self.log_user(pk=2)
         document_before_edit = Document.objects.get(pk=1)
         data = {
+            "title": document_before_edit.title,
             "product": document_before_edit.product.id,
             "category": document_before_edit.category.id,
             "validity_start": document_before_edit.validity_start,
@@ -610,6 +618,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
 
         document = Document.objects.get(pk=3)
         data = {
+            "title": document.title,
             "product": document.product.id,
             "category": document.category.id,
             "validity_start": "1999-12-12",

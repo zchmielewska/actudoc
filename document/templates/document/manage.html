@@ -21,8 +21,8 @@
             {% for product in products %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ product.model }}</td>
-                <td>{{ product.name }}</td>
+                <td><a href="/search/?product={{ product.company_product_id }}" class="link">{{ product.model }}</a></td>
+                <td><a href="/search/?product={{ product.company_product_id }}" class="link">{{ product.name }}</a></td>
                 {% if user_is_contributor or user_is_admin %}
                     <td>
                         <a href="{% url "edit_product" request.user.profile.company.name product.company_product_id %}" class="link">edit</a>
@@ -77,7 +77,7 @@
             {% for category in categories %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ category.name }}</td>
+                <td><a href="/search/?category={{ category.company_category_id }}" class="link">{{ category.name }}</a></td>
                 {% if user_is_contributor or user_is_admin %}
                 <td>
                     <a href="{% url "edit_category" request.user.profile.company.name category.company_category_id %}" class="link">edit</a>

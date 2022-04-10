@@ -23,7 +23,7 @@ class CategoryForm(forms.ModelForm):
 class DocumentAddForm(forms.ModelForm):
     class Meta:
         model = models.Document
-        fields = ("product", "category", "validity_start", "file")
+        fields = ("product", "category", "validity_start", "file", "title", "description")
         widgets = {
             "validity_start": forms.DateInput(attrs={"type": "date"}),
         }
@@ -32,7 +32,7 @@ class DocumentAddForm(forms.ModelForm):
 class DocumentEditForm(forms.ModelForm):
     class Meta:
         model = models.Document
-        fields = ("product", "category", "validity_start")
+        fields = ("title", "product", "category", "validity_start", "description")
         widgets = {
             "validity_start": forms.DateInput(attrs={"type": "date"}),
         }

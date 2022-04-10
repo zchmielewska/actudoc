@@ -32,7 +32,10 @@ def search(phrase, company):
     else:
         d9 = company_documents.filter(company_document_id__icontains=phrase_without_hash)
 
-    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9
+    d10 = company_documents.filter(title__icontains=phrase)
+    d11 = company_documents.filter(description__icontains=phrase)
+
+    all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9 | d10 | d11
     documents = all_documents.distinct().order_by("-id")
     return documents
 
@@ -79,6 +82,27 @@ def save_history(data1, data2, user):
             changed_by=user,
             changed_at=now,
         )
+
+    if not data1["title"] == data2["title"]:
+        models.History.objects.create(
+            document_id=data1["id"],
+            element="title",
+            changed_from=data1["title"],
+            changed_to=data2["title"],
+            changed_by=user,
+            changed_at=now,
+        )
+
+    if data1["description"] and data2["description"]:
+        if not data1["description"] == data2["description"]:
+            models.History.objects.create(
+                document_id=data1["id"],
+                element="description",
+                changed_from=data1["description"],
+                changed_to=data2["description"],
+                changed_by=user,
+                changed_at=now,
+            )
 
     return None
 

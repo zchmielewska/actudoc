@@ -60,6 +60,7 @@
     "fields": {
       "company": 1,
       "company_document_id": 1,
+      "title": "My title",
       "product_id": 1,
       "category_id": 1,
       "validity_start": "2022-01-01",
@@ -73,6 +74,7 @@
     "fields": {
       "company": 1,
       "company_document_id": 2,
+      "title": "My title",
       "product_id": 1,
       "category_id": 1,
       "validity_start": "2022-01-02",
@@ -86,6 +88,7 @@
     "fields": {
       "company": 1,
       "company_document_id": 3,
+      "title": "My title",
       "product_id": 1,
       "category_id": 1,
       "validity_start": "2022-01-03",
