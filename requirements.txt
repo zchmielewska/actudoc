@@ -5,7 +5,7 @@ atomicwrites==1.4.0
 attrs==21.4.0
 colorama==0.4.4
 coverage==6.3.2
-Django==4.0.2
+Django==3.2.13
 flake8==4.0.1
 future==0.18.2
 iniconfig==1.1.1
@@ -22,7 +22,7 @@ psycopg2-binary==2.9.3
 py==1.11.0
 pycodestyle==2.8.0
 pyflakes==2.4.0
-pyinstaller==4.1
+pyinstaller==3.6
 pyinstaller-hooks-contrib==2020.10
 pylint==2.6.0
 pyparsing==3.0.7
