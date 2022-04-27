@@ -178,7 +178,7 @@ class EditUserByAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request, company_name, employee_num):
         company = get_object_or_404(Company, name=company_name)
-        profile = get_object_or_404(Profile, employee_num=employee_num)
+        profile = get_object_or_404(Profile, company=company, employee_num=employee_num)
         user = profile.user
         if request.user.profile.company != company:
             raise PermissionDenied
