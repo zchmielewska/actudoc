@@ -11,13 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu" rel="stylesheet">
     <link rel="stylesheet" href="{% static "css/styles.css" %}">
     {% block head %}{% endblock %}
-    <title>ActuDoc | actuarial documents</title>
+    <title>actudoc | actuarial documents</title>
 </head>
 <body>
     <div class="wrapper">
         <div class="nav-bar">
             <div class="nav-content">
-                <div><a href="/">ACTU<strong>DOC</strong>
+                <div><a href="/">actu<strong>doc</strong>
                     {% if request.user.is_authenticated %}
                         | {{ request.user.profile.company.name }}
                     {% endif %}

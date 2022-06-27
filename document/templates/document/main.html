@@ -24,48 +24,38 @@
         <h3>Latest documents</h3>
     {% endif %}
 
-    <div class="docs">
-        {% for document in documents %}
-            <div class="doc">
-                <div style="background-color: #d5d6da; padding: 4px; text-align: center; font-size: 0.8em; font-weight: bold; border-radius: 12px 12px 0 0;">
-                    #{{ document.company_document_id }}
-                </div>
+    {% for document in documents %}
+    <a class="doc" href="{% url 'document_detail' request.user.profile.company.name document.company_document_id %}">
+        <div style="padding: 4px 4px; text-align: right; font-size: 0.8em; font-weight: bold; color: #666;">
+            #{{ document.company_document_id }}
+        </div>
 
-                <div style="padding: 16px;">
-                    <p>
-                        <span class="meta">Title:</span><br>
-                        <span>{{ document.title }}</span>
-                    </p>
-                    <p>
-                        <span class="meta">Insurance product:</span><br>
-                        <span>{{ document.product.name }} ({{ document.product.model }})</span>
-                    </p>
+        <div style="padding: 0 16px 32px 16px;">
+            <span class="meta">Title:</span>
+            <p style="font-size: large; font-weight: bold;">{{ document.title }}</p>
 
-                    <p>
-                        <span class="meta">Document category:</span><br>
-                        <span>{{ document.category.name }}</span>
-                    </p>
-
-                    <p>
-                        <span class="meta">Valid from:</span><br>
-                        <span>{{ document.validity_start|date:'Y-m-d' }}</span>
-                    </p>
-                    <div class="vertical-center">
-                        <a href="{% url "document_detail" request.user.profile.company.name document.company_document_id %}" class="link">show more</a>
-                    </div>
-                </div>
+            <div style="width: 50%; float:left;">
+                <span class="meta">Insurance product:</span><br>
+                <span>{{ document.product.name }} ({{ document.product.model }})</span>
             </div>
-        {% empty %}
-            {% if phrase %}
-                <p>No documents found.</p>
-            {% else %}
-                <p>There is no document yet.</p>
-            {% endif %}
-        {% endfor %}
-    </div>
+
+            <div style="width: 50%; float:right;">
+                <span class="meta">Document category:</span><br>
+                <span>{{ document.category.name }}</span>
+            </div>
+            <br style="clear:both;">
+        </div>
+    </a>
+    {% empty %}
+        {% if phrase %}
+            <p>No documents found.</p>
+        {% else %}
+            <p>There is no document yet.</p>
+        {% endif %}
+    {% endfor %}
+
     {% if documents %}
         {% include "document/pagination.html" with page=documents %}
     {% endif %}
-
 
 {% endblock %}
