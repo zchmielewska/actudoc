@@ -25,6 +25,7 @@ class DocumentAddForm(forms.ModelForm):
         model = models.Document
         fields = ("product", "category", "validity_start", "file", "title", "description")
         widgets = {
+            "product": forms.CheckboxSelectMultiple(),
             "validity_start": forms.DateInput(attrs={"type": "date"}),
         }
 
@@ -34,5 +35,6 @@ class DocumentEditForm(forms.ModelForm):
         model = models.Document
         fields = ("title", "product", "category", "validity_start", "description")
         widgets = {
+            "product": forms.CheckboxSelectMultiple(),
             "validity_start": forms.DateInput(attrs={"type": "date"}),
         }

@@ -2,6 +2,7 @@
 /* complimentary: #0036c5 */
 * { box-sizing: border-box;}
 a { color: inherit; text-decoration: none; }
+ul { list-style-type: none; }
 
 /* Main page */
 html {

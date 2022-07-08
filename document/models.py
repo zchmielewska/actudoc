@@ -77,7 +77,7 @@ def document_path(instance, filename):
 class Document(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     company_document_id = models.PositiveIntegerField()
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="insurance product")
+    product = models.ManyToManyField(Product, verbose_name="insurance product")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="document category")
     validity_start = models.DateField(verbose_name="valid from")
     file = models.FileField(upload_to=document_path, validators=[validate_file_extension])
@@ -99,7 +99,7 @@ class Document(models.Model):
     class Meta:
         indexes = [models.Index(fields=["company", "company_document_id"])]
         ordering = ["-id"]
-        unique_together = ("company", "product", "category", "validity_start")
+        unique_together = ("company", "category", "validity_start")
 
 
 class History(models.Model):

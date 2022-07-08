@@ -36,7 +36,9 @@
 
             <div style="width: 50%; float:left;">
                 <span class="meta">Insurance product:</span><br>
-                <span>{{ document.product.name }} ({{ document.product.model }})</span>
+                {% for product in document.product.all %}
+                    <span>{{ product.name }} ({{ product.model }})</span><br>
+                {% endfor %}
             </div>
 
             <div style="width: 50%; float:right;">

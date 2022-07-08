@@ -107,7 +107,7 @@ class TestLoginView(ExtendedTestCase):
     def test_post(self):
         self.create_viewer()
 
-        response = self.client.post("/account/login/", {"email": "viewer@example.com", "password": "pass"})
+        self.client.post("/account/login/", {"email": "viewer@example.com", "password": "pass"})
         user = auth.get_user(self.client)
         self.assertTrue(user.is_authenticated)
 
@@ -115,19 +115,19 @@ class TestLoginView(ExtendedTestCase):
         self.create_viewer()
 
         # Incorrect password
-        response = self.client.post("/account/login/", {"email": "viewer@example.com", "password": "wrong"})
+        self.client.post("/account/login/", {"email": "viewer@example.com", "password": "wrong"})
         user = auth.get_user(self.client)
         self.assertFalse(user.is_authenticated)
 
         # Incorrect username
-        response = self.client.post("/account/login/", {"email": "wrong@wrong.com", "password": "pass"})
+        self.client.post("/account/login/", {"email": "wrong@wrong.com", "password": "pass"})
         user = auth.get_user(self.client)
         self.assertFalse(user.is_authenticated)
 
     def test_post_inactive_user(self):
         self.create_inactive_user()
 
-        response = self.client.post("/account/login/", {"email": "viewer@example.com", "password": "pass"})
+        self.client.post("/account/login/", {"email": "viewer@example.com", "password": "pass"})
         user = auth.get_user(self.client)
         self.assertFalse(user.is_authenticated)
 
@@ -222,4 +222,3 @@ class TestEditUserByAdminViewFix05(ExtendedTestCase):
 
         edited_user = User.objects.get(pk=2)
         self.assertEqual(edited_user.first_name, "John")
-

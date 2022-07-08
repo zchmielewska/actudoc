@@ -28,11 +28,19 @@
             </tr>
             <tr>
                 <td>Name: </td>
-                <td>{{ document.product.name }}</td>
+                <td>
+                    {% for product in document.product.all %}
+                        <span>{{ product.name }}</span><br>
+                    {% endfor %}
+                </td>
             </tr>
             <tr>
                 <td>Cash flow model: </td>
-                <td>{{ document.product.model }}</td>
+                <td>
+                    {% for product in document.product.all %}
+                        <span>{{ product.model }}</span><br>
+                    {% endfor %}
+                </td>
             </tr>
             <tr>
                 <td colspan="2"><strong>Document</strong></td>
@@ -77,33 +85,33 @@
             {% endif %}
         </div>
 
-        {% if history_set %}
-            <div id="show-history" class="vertical-center" style="margin: 24px 0 0 0; font-size: 0.75em;">
-                <strong>Show history of changes</strong>
-            </div>
+<!--        {% if history_set %}-->
+<!--            <div id="show-history" class="vertical-center" style="margin: 24px 0 0 0; font-size: 0.75em;">-->
+<!--                <strong>Show history of changes</strong>-->
+<!--            </div>-->
 
-            <div id="history" style="display: none;">
-                <hr style="border: 1px dashed #999; margin: 24px 0 24px 0;">
-                <table class="striped-table" style="font-size: 0.75em;">
-                    <tr>
-                        <th>Element</th>
-                        <th>Before</th>
-                        <th>After</th>
-                        <th>User</th>
-                        <th>Date</th>
-                    </tr>
-                    {% for history in history_set %}
-                    <tr>
-                        <td>{{ history.element }}</td>
-                        <td>{{ history.changed_from }}</td>
-                        <td>{{ history.changed_to }}</td>
-                        <td>{{ history.changed_by }}</td>
-                        <td>{{ history.changed_at|date:"Y-m-d H:i" }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        {% endif %}
+<!--            <div id="history" style="display: none;">-->
+<!--                <hr style="border: 1px dashed #999; margin: 24px 0 24px 0;">-->
+<!--                <table class="striped-table" style="font-size: 0.75em;">-->
+<!--                    <tr>-->
+<!--                        <th>Element</th>-->
+<!--                        <th>Before</th>-->
+<!--                        <th>After</th>-->
+<!--                        <th>User</th>-->
+<!--                        <th>Date</th>-->
+<!--                    </tr>-->
+<!--                    {% for history in history_set %}-->
+<!--                    <tr>-->
+<!--                        <td>{{ history.element }}</td>-->
+<!--                        <td>{{ history.changed_from }}</td>-->
+<!--                        <td>{{ history.changed_to }}</td>-->
+<!--                        <td>{{ history.changed_by }}</td>-->
+<!--                        <td>{{ history.changed_at|date:"Y-m-d H:i" }}</td>-->
+<!--                    </tr>-->
+<!--                    {% endfor %}-->
+<!--                </table>-->
+<!--            </div>-->
+<!--        {% endif %}-->
     </div>
 
 {% endblock %}

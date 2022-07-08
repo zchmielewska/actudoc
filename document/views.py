@@ -1,4 +1,3 @@
-import mimetypes
 import os
 from django.conf import settings
 from django.contrib import messages
@@ -324,16 +323,9 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = forms.DocumentAddForm(request.POST, request.FILES)
         company = request.user.profile.company
         if form.is_valid():
+            document = form.save(commit=False)
             cd = form.cleaned_data
             form_file = cd.get("file")
-
-            # Two documents can't have the same product, category and validity start date
-            d = models.Document.objects.filter(company=company, product=cd.get("product"), category=cd.get("category"),
-                                               validity_start=cd.get("validity_start")).first()
-            if d:
-                form.add_error("product", f"Document #{d.company_document_id} is already associated with this product, "
-                                          f"category and validity start date.")
-                return render(request, "document/document_form.html", {"form": form})
 
             # Documents have internal id within the company
             try:
@@ -342,17 +334,13 @@ class AddDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
             except models.Document.DoesNotExist:
                 company_document_id = 1
 
-            document = models.Document.objects.create(
-                company=company,
-                company_document_id=company_document_id,
-                product=cd.get("product"),
-                category=cd.get("category"),
-                validity_start=cd.get("validity_start"),
-                file=form_file,
-                title=cd.get("title"),
-                description=cd.get("description"),
-                created_by=request.user,
-            )
+            # Document has some attributes outside the form
+            document.company = company
+            document.company_document_id = company_document_id
+            document.file = form_file
+            document.created_by = request.user
+            document.save()
+            form.save_m2m()
 
             # Saved filename might be different from the sent filename
             saved_filename = os.path.basename(document.file.name)
@@ -406,31 +394,9 @@ class EditDocumentView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = forms.DocumentEditForm(request.POST, request.FILES, instance=document)
 
         if form.is_valid():
-            cd = form.cleaned_data
-
-            # Two documents can't have the same product, category and validity start date
-            duplicated_document = models.Document.objects.filter(company=company,
-                                                                 product=cd.get("product"),
-                                                                 category=cd.get("category"),
-                                                                 validity_start=cd.get("validity_start")
-                                                                 ).exclude(id=document.id).first()
-            if duplicated_document:
-                form.add_error("product", f"Document #{duplicated_document.company_document_id} is already associated "
-                                          f"with this product, category and validity start date.")
-                form.fields["product"].queryset = models.Product.objects.filter(company=company)
-                form.fields["category"].queryset = models.Category.objects.filter(company=company)
-                return render(request, "document/document_form.html", {"form": form})
-
-            # History of changes gets saved
-            document_new = form.save(commit=False)
-            document_old = models.Document.objects.get(id=document.id)
-            data_old = document_old.__dict__.copy()
-            document_new.save()
-            data_new = document_new.__dict__.copy()
-            utils.save_history(data_old, data_new, user=self.request.user)
-
+            document = form.save()
             messages.success(self.request, "Document updated!")
-            return redirect("document_detail", document_new.company.name, document_new.company_document_id)
+            return redirect("document_detail", document.company.name, document.company_document_id)
         else:
             form.fields["product"].queryset = models.Product.objects.filter(company=company)
             form.fields["category"].queryset = models.Category.objects.filter(company=company)

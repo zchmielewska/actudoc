@@ -257,7 +257,7 @@ class TestAddProductView(ExtendedTestCase):
         }
 
         self.create_and_log_contributor()
-        response = self.client.post("/product/add/", data)
+        self.client.post("/product/add/", data)
         products = Product.objects.all()
         self.assertEqual(products.count(), 0)
 
@@ -329,7 +329,7 @@ class TestEditProductViewFix01(ExtendedTestCase):
         self.assertEqual(products.count(), 1)
         self.assertEqual(products.first().model, "TERM02")
 
-        response = self.client.post("/product/edit/alpha/1", data)
+        self.client.post("/product/edit/alpha/1", data)
 
         # After edit - nothing changed
         products = Product.objects.filter(company=user.profile.company)
@@ -602,7 +602,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
     fixtures = ["03.json"]
 
     def test_get(self):
-        response = self.client.get(f"/document/edit/alpha/1")
+        response = self.client.get("/document/edit/alpha/1")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/account/login?next=/document/edit/alpha/1")
 
@@ -652,7 +652,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         document.delete()
 
     def test_post_edit_document_change_category(self):
-        user = self.log_user(pk=2)
+        self.log_user(pk=2)
         documents = Document.objects
         self.assertEqual(documents.count(), 3)
 
@@ -685,7 +685,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         document.delete()
 
     def test_post_edit_without_changes(self):
-        user = self.log_user(pk=2)
+        self.log_user(pk=2)
         document_before_edit = Document.objects.get(pk=1)
         data = {
             "title": document_before_edit.title,
@@ -702,7 +702,7 @@ class TestEditDocumentViewFix03(ExtendedTestCase):
         document_after_edit.delete()
 
     def test_post_edit_document_change_valid_from(self):
-        user = self.log_user(pk=2)
+        self.log_user(pk=2)
 
         documents = Document.objects
         self.assertEqual(documents.count(), 3)
@@ -778,7 +778,7 @@ class TestDownloadDocumentViewFix01(ExtendedTestCase):
         response = self.client.get("/download/alpha/1")
         self.assertEqual(response.status_code, 302)
 
-        user = self.log_user(pk=1)
+        self.log_user(pk=1)
         open("media/alpha/fileA.pdf", "x")
         response = self.client.get("/download/alpha/1")
         self.assertEqual(response.status_code, 200)

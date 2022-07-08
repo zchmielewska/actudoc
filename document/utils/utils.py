@@ -1,5 +1,4 @@
 from django.core.files.storage import Storage
-from django.utils import timezone
 
 from document import models
 
@@ -38,73 +37,6 @@ def search(phrase, company):
     all_documents = d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 | d9 | d10 | d11
     documents = all_documents.distinct().order_by("-id")
     return documents
-
-
-def save_history(data1, data2, user):
-    """
-    Saves history of the changes for documents attributes.
-
-    Checks the following attributes: product, category, validity_start.
-
-    :param data1: data dictionary for old document
-    :param data2: data dictionary for new document
-    :param user: user who performs changes
-    :return: None
-    """
-    now = timezone.now()
-
-    if not data1["product_id"] == data2["product_id"]:
-        models.History.objects.create(
-            document_id=data1["id"],
-            element="product",
-            changed_from=models.Product.objects.get(id=data1["product_id"]),
-            changed_to=models.Product.objects.get(id=data2["product_id"]),
-            changed_by=user,
-            changed_at=now,
-        )
-
-    if not data1["category_id"] == data2["category_id"]:
-        models.History.objects.create(
-            document_id=data1["id"],
-            element="document category",
-            changed_from=models.Category.objects.get(id=data1["category_id"]),
-            changed_to=models.Category.objects.get(id=data2["category_id"]),
-            changed_by=user,
-            changed_at=now,
-        )
-
-    if not data1["validity_start"] == data2["validity_start"]:
-        models.History.objects.create(
-            document_id=data1["id"],
-            element="valid from",
-            changed_from=data1["validity_start"],
-            changed_to=data2["validity_start"],
-            changed_by=user,
-            changed_at=now,
-        )
-
-    if not data1["title"] == data2["title"]:
-        models.History.objects.create(
-            document_id=data1["id"],
-            element="title",
-            changed_from=data1["title"],
-            changed_to=data2["title"],
-            changed_by=user,
-            changed_at=now,
-        )
-
-    if data1["description"] and data2["description"]:
-        if not data1["description"] == data2["description"]:
-            models.History.objects.create(
-                document_id=data1["id"],
-                element="description",
-                changed_from=data1["description"],
-                changed_to=data2["description"],
-                changed_by=user,
-                changed_at=now,
-            )
-
-    return None
 
 
 def get_filename_msg(saved_filename, sent_filename, company_name):
